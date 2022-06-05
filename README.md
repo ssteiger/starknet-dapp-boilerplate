@@ -1,7 +1,7 @@
 # Starknet dApp boilerplate
 
-A bolerplate to qickly get up and running with starknet dapp development.
-Using Cairo, Hardhat and ReactJs.
+A boilerplate to quickly get up and running with Starknet dApp development.
+Using Cairo, Hardhat and ReactJS.
 
 ## Getting started
 
