@@ -1,0 +1,72 @@
+{
+  "name": "@starknet-dapp/monorepo",
+  "version": "1.0.0",
+  "keywords": [
+    "ethereum",
+    "react",
+    "starknet"
+  ],
+  "private": true,
+  "scripts": {
+    "react-app:build": "yarn workspace @starknet-dapp/react-app build --max-old-space-size=12288",
+    "react-app:eject": "yarn workspace @starknet-dapp/react-app eject",
+    "react-app:start": "yarn workspace @starknet-dapp/react-app start",
+    "react-app:test": "yarn workspace @starknet-dapp/react-app test",
+    "build": "yarn workspace @starknet-dapp/react-app build --max-old-space-size=12288",
+    "prettier": "yarn workspace @starknet-dapp/react-app prettier",
+    "chain": "yarn workspace @starknet-dapp/hardhat chain",
+    "fork": "yarn workspace @starknet-dapp/hardhat fork",
+    "node": "yarn workspace @starknet-dapp/hardhat chain",
+    "test": "yarn workspace @starknet-dapp/hardhat test",
+    "start": "yarn workspace @starknet-dapp/react-app start",
+    "compile": "yarn workspace @starknet-dapp/hardhat compile",
+    "deploy": "yarn workspace @starknet-dapp/hardhat deploy",
+    "verify": "yarn workspace @starknet-dapp/hardhat verify",
+    "watch": "yarn workspace @starknet-dapp/hardhat watch",
+    "accounts": "yarn workspace @starknet-dapp/hardhat accounts",
+    "balance": "yarn workspace @starknet-dapp/hardhat balance",
+    "send": "yarn workspace @starknet-dapp/hardhat send",
+    "ipfs": "yarn workspace @starknet-dapp/react-app ipfs",
+    "surge": "yarn workspace @starknet-dapp/react-app surge",
+    "s3": "yarn workspace @starknet-dapp/react-app s3",
+    "ship": "yarn workspace @starknet-dapp/react-app ship",
+    "generate": "yarn workspace @starknet-dapp/hardhat generate",
+    "account": "yarn workspace @starknet-dapp/hardhat account",
+    "mineContractAddress": "cd packages/hardhat && npx hardhat mineContractAddress",
+    "wallet": "cd packages/hardhat && npx hardhat wallet",
+    "fundedwallet": "cd packages/hardhat && npx hardhat fundedwallet",
+    "flatten": "cd packages/hardhat && npx hardhat flatten",
+    "clean": "cd packages/hardhat && npx hardhat clean",
+    "run-graph-node": "yarn workspace @starknet-dapp/services run-graph-node",
+    "remove-graph-node": "yarn workspace @starknet-dapp/services remove-graph-node",
+    "clean-graph-node": "yarn workspace @starknet-dapp/services clean-graph-node",
+    "graph-prepare": "mustache packages/subgraph/config/config.json packages/subgraph/src/subgraph.template.yaml > packages/subgraph/subgraph.yaml",
+    "graph-codegen": "yarn workspace @starknet-dapp/subgraph graph codegen",
+    "graph-build": "yarn workspace @starknet-dapp/subgraph graph build",
+    "graph-create-local": "yarn workspace @starknet-dapp/subgraph graph create --node http://localhost:8020/ starknet-dapp/your-contract",
+    "graph-remove-local": "yarn workspace @starknet-dapp/subgraph graph remove --node http://localhost:8020/ starknet-dapp/your-contract",
+    "graph-deploy-local": "yarn workspace @starknet-dapp/subgraph graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 starknet-dapp/your-contract",
+    "graph-ship-local": "yarn graph-prepare && yarn graph-codegen && yarn graph-deploy-local",
+    "deploy-and-graph": "yarn deploy && yarn graph-ship-local",
+    "theme": "yarn workspace @starknet-dapp/react-app theme",
+    "watch-theme": "yarn workspace @starknet-dapp/react-app watch",
+    "postinstall": "husky install"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/@graphprotocol/graph-ts",
+      "**/@graphprotocol/graph-ts/**",
+      "**/hardhat",
+      "**/hardhat/**",
+      "**/hardhat-ts",
+      "**/hardhat-ts/**"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "husky": "^7.0.2"
+  }
+}
