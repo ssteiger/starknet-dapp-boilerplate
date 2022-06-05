@@ -57,9 +57,9 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   );
   console.log("account:");
   console.log("");
-  console.log("starknetContract address:", account.starknetContract.address);
-  console.log("publicKey:", account.publicKey);
-  console.log("privateKey:", account.privateKey);
+  console.log("account contract address:", account.starknetContract.address);
+  console.log("public key:", account.publicKey);
+  console.log("private key:", account.privateKey);
   console.log(
     "---------------------------------------------------------------------------------------"
   );
