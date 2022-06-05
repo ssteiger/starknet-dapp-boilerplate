@@ -14,10 +14,8 @@ $ yarn
 $ yarn chain
 
 # 2. terminal
-$ cd ./packages/hardhat
-
 # compile contracts
-$ yarn starknet:compile
+$ yarn compile
 
 # deploy contracts
 # (maybe you first need to create the folder /packages/hardhat/deployments)
