@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.1.0 (token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
+# OpenZeppelin Contracts for Cairo v0.1.0 (token/erc721/ERC721_Mintable_Burnable.cairo)
 
 %lang starknet
 
@@ -7,8 +7,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.token.erc721.library import ERC721
-from openzeppelin.token.erc721_enumerable.library import ERC721_Enumerable
 from openzeppelin.introspection.ERC165 import ERC165
+
 from openzeppelin.access.ownable import Ownable
 
 #
@@ -26,7 +26,6 @@ func constructor{
         owner: felt
     ):
     ERC721.initializer(name, symbol)
-    ERC721_Enumerable.initializer()
     Ownable.initializer(owner)
     return ()
 end
@@ -34,36 +33,6 @@ end
 #
 # Getters
 #
-
-@view
-func totalSupply{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }() -> (totalSupply: Uint256):
-    let (totalSupply: Uint256) = ERC721_Enumerable.total_supply()
-    return (totalSupply)
-end
-
-@view
-func tokenByIndex{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }(index: Uint256) -> (tokenId: Uint256):
-    let (tokenId: Uint256) = ERC721_Enumerable.token_by_index(index)
-    return (tokenId)
-end
-
-@view
-func tokenOfOwnerByIndex{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }(owner: felt, index: Uint256) -> (tokenId: Uint256):
-    let (tokenId: Uint256) = ERC721_Enumerable.token_of_owner_by_index(owner, index)
-    return (tokenId)
-end
 
 @view
 func supportsInterface{
@@ -189,7 +158,7 @@ func transferFrom{
         to: felt,
         tokenId: Uint256
     ):
-    ERC721_Enumerable.transfer_from(from_, to, tokenId)
+    ERC721.transfer_from(from_, to, tokenId)
     return ()
 end
 
@@ -205,7 +174,7 @@ func safeTransferFrom{
         data_len: felt,
         data: felt*
     ):
-    ERC721_Enumerable.safe_transfer_from(from_, to, tokenId, data_len, data)
+    ERC721.safe_transfer_from(from_, to, tokenId, data_len, data)
     return ()
 end
 
@@ -215,8 +184,8 @@ func mint{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    #Ownable.assert_only_owner()
-    ERC721_Enumerable._mint(to, tokenId)
+    Ownable.assert_only_owner()
+    ERC721._mint(to, tokenId)
     return ()
 end
 
@@ -227,7 +196,7 @@ func burn{
         range_check_ptr
     }(tokenId: Uint256):
     ERC721.assert_only_token_owner(tokenId)
-    ERC721_Enumerable._burn(tokenId)
+    ERC721._burn(tokenId)
     return ()
 end
 
