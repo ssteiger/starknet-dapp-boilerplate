@@ -1,22 +1,15 @@
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import ReactDOM from "react-dom";
 import App from "./App";
 import "./index.css";
 
-const subgraphUri = "http://localhost:8000/subgraphs/name/your-dapp/your-contract";
+import { createRoot } from "react-dom/client";
 
-const client = new ApolloClient({
-  uri: subgraphUri,
-  cache: new InMemoryCache(),
-});
+const container = document.getElementById("root");
+const root = createRoot(container); // createRoot(container!) if you use TypeScript
 
-ReactDOM.render(
-  <ApolloProvider client={client}>
-    <BrowserRouter>
-      <App subgraphUri={subgraphUri} />
-    </BrowserRouter>
-  </ApolloProvider>,
-  document.getElementById("root"),
+root.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
 );
