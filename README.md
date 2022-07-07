@@ -41,6 +41,11 @@ Deployments after that can reuse the created account.
 
 Toggle the bool flag and update the variables `const accountAddress` and `const privateKey` accordingly.
 
+## Get some test eth
+
+1. Get some goerli testnet eth from the [goerli faucet](https://goerlifaucet.com/) ([alternative](https://goerli-faucet.slock.it/)).
+2. Then bridge it over to starknet using the [goerli starknet bridge](https://goerli.starkgate.starknet.io/).
+
 ## Verify contract
 
 ```bash
@@ -54,6 +59,10 @@ $ sudo npx hardhat starknet-verify --starknet-network alpha-goerli --path ./cont
 * [starknet](https://starkware.co/starknet/)
 * [cairo-lang](https://www.cairo-lang.org/)
 * [cairo-lang docs](https://www.cairo-lang.org/docs/)
-* [scaffold-eth](https://github.com/scaffold-eth/scaffold-eth)
+* [starknet.js](https://github.com/0xs34n/starknet.js)
+* [starknet-react](https://github.com/apibara/starknet-react)
+* [web3-starknet-react](https://github.com/dhruvkelawala/web3-starknet-react/tree/main/docs)
 * [starknet-hardhat-plugin](https://github.com/Shard-Labs/starknet-hardhat-plugin)
 * [goerli starknet block explorer](https://goerli.voyager.online/)
+* [example deployment](https://goerli.voyager.online/contract/0x0585feed17184d7990c57febcbb8e185f6607f49a2152c2965da5f01d373a405)
+* [starknet goerli faucet](https://faucet.goerli.starknet.io/)
