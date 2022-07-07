@@ -1,18 +1,13 @@
+/* eslint-disable camelcase */
 // deploy/00_deploy_your_contract.js
 
-const { ethers } = require("hardhat");
-const { starknet } = require("hardhat");
+const { starknet, ethers } = require("hardhat");
+const fs = require("fs");
+
+const { shortStringToBigInt } = starknet;
 
 // https://starknet.io/documentation/chain-ids/
-const localChainId = "SN_GOERLI";
-
-// const sleep = (ms) =>
-//   new Promise((r) =>
-//     setTimeout(() => {
-//       console.log(`waited for ${(ms / 1000).toFixed(3)} seconds`);
-//       r();
-//     }, ms)
-//   );
+const starknetGoerliChainId = "1536727068981429685321"; // SN_GOERLI
 
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   /*
@@ -57,43 +52,79 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   );
   console.log("account:");
   console.log("");
-  console.log("account contract address:", account.starknetContract.address);
+  console.log("contract address:", account.starknetContract.address);
   console.log("public key:", account.publicKey);
   console.log("private key:", account.privateKey);
   console.log(
     "---------------------------------------------------------------------------------------"
   );
 
-  console.log("now deploying contract");
-  const contractFactory = await starknet.getContractFactory("ERC721");
-  const contract = await contractFactory.deploy({
-    name: 100, // "MyNFT",
-    symbol: 100, // "MNFT",
-    base_uri: {
-      prefix: 100, // "ipfs://myNFT",
-      suffix: 100, // ".com",
-    },
+  const contractName = "ERC721";
+
+  const contractERC721 = await starknet.getContractFactory(contractName);
+
+  const contractERC721_deployed = await contractERC721.deploy({
+    name: shortStringToBigInt("StarknetNFT"),
+    symbol: shortStringToBigInt("SNFT"),
+    // TODO: this is not working, to long?
+    // owner: shortStringToBigInt(`${account.starknetContract.address}`),
+    owner: shortStringToBigInt("TODO_OwnerAccount"),
   });
-  console.log("deployed to:", contract.address);
+
+  console.log("deployed to:", contractERC721_deployed.address);
   console.log(
     "block explorer:",
-    `https://goerli.voyager.online/contract/${contract.address}`
+    `https://goerli.voyager.online/contract/${contractERC721_deployed.address}`
   );
 
-  // Verify from the command line by running `yarn verify`
+  ///
+  // publish ABI to frontend
+  // TODO: move this into own file and call in "postdeploy":
+  console.log("publish contract to frontend");
 
-  // You can also Verify your contracts with Etherscan here...
-  // You don't want to verify on localhost
-  // try {
-  //   if (chainId !== localChainId) {
-  //     await run("verify:verify", {
-  //       address: YourContract.address,
-  //       contract: "contracts/YourContract.sol:YourContract",
-  //       constructorArguments: [],
-  //     });
-  //   }
-  // } catch (error) {
-  //   console.error(error);
-  // }
+  const { address } = contractERC721_deployed;
+
+  // fetch ABI
+  const abi = JSON.parse(
+    fs.readFileSync(
+      `./starknet-artifacts/contracts/ERC721.cairo/ERC721_abi.json`
+    )
+  );
+
+  const contracts = {};
+  contracts[contractName] = {
+    address,
+    abi,
+  };
+
+  const content = {
+    "1536727068981429685321": {
+      starknetGoerli: {
+        name: "starknetGoerli",
+        // chainId: int.from_bytes(b'SN_GOERLI', byteorder="big", signed=False)
+        chainId: "1536727068981429685321",
+        contracts,
+      },
+    },
+  };
+
+  const publishDir = "../react-app/src/contracts";
+
+  fs.writeFileSync(
+    `${publishDir}/hardhat_starknet_contracts.json`,
+    `${JSON.stringify(content, null, 2)}`,
+    (err) => {
+      if (err) {
+        console.error("Error writing contracts to frontend:");
+        console.error(err);
+      }
+      // file written successfully
+      console.log("contract published to frontend");
+    }
+  );
+
+  console.log("publish contract to frontend: DONE");
+  ///
 };
+
 module.exports.tags = ["MyContracts"];
