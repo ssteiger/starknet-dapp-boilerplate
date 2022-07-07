@@ -1,21 +1,18 @@
 import { Button, Col, Divider, Input, Row, Tooltip } from "antd";
 import React, { useState } from "react";
 import Blockies from "react-blockies";
-import { Account, Contract, defaultProvider, ec, json, number } from "starknet";
-import {
-  StarknetProvider,
-  useContract,
-  useStarknetBlock,
-  useStarknetCall,
-  useStarknetInvoke,
-  useStarknetTransactionManager,
-  Transaction,
-  useStarknet,
-  InjectedConnector,
-  ConnectorNotFoundError,
-} from "@starknet-react/core";
+
+import { toFelt, toBN } from "starknet/dist/utils/number";
+import { isUint256, uint256ToBN } from "starknet/dist/utils/uint256";
 
 import { Transactor } from "../../helpers";
+import {
+  createContract,
+  callContract,
+  sendTransaction,
+  getUint256CalldataFromBN,
+  parseInputAmountToUint256,
+} from "../../helpers/starknet/";
 import { tryToDisplay, tryToDisplayAsText } from "./utils";
 
 const { utils, BigNumber } = require("ethers");
@@ -25,7 +22,14 @@ const getFunctionInputKey = (functionInfo, input, inputIndex) => {
   return functionInfo.name + "_" + name + "_" + input.type;
 };
 
-export default function FunctionForm({ contractFunction, functionInfo, provider, gasPrice, triggerRefresh }) {
+export default function FunctionForm({
+  contract,
+  contractFunctionName,
+  functionInfo,
+  provider,
+  gasPrice,
+  triggerRefresh,
+}) {
   const [form, setForm] = useState({});
   const [txValue, setTxValue] = useState();
   const [returnValue, setReturnValue] = useState();
@@ -105,6 +109,7 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
       }
     }
 
+    // TODO: remove this?
     return (
       <div style={{ margin: 2 }} key={key}>
         {input.name}
@@ -201,24 +206,31 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
     });
 
     let result;
-    console.log("here before if:");
     if (functionInfo.stateMutability === "view" || functionInfo.stateMutability === "pure") {
-      console.log("after if");
+      let parsedArgs = [];
       try {
-        console.log({ contractFunction });
-        console.log({ args });
-        console.log("now await contractFunction(args) :");
-        console.log({ contractFunction });
-        const returned = await contractFunction(args);
-        console.log({ returned });
-        handleForm(returned);
-        result = tryToDisplayAsText(returned);
+        functionInfo.inputs.map((input, index) => {
+          console.log({ input });
+          if (input.type === "Uint256") {
+            parsedArgs[index] = parseInputAmountToUint256(args[index]);
+          }
+          if (input.type === "felt") {
+            parsedArgs[index] = toFelt(args[index]);
+          }
+          // TODO: is this correct?
+          if (input.type === "felt*") {
+            parsedArgs[index] = toFelt(args[index]);
+          }
+        });
+        // const _balanceOf = await callContract(erc721Contract, "balanceOf", address);
+        const returned = await callContract(contract, contractFunctionName, ...parsedArgs);
+        if (!returned.length) throw new Error("Can not read return value array");
+        handleForm(returned[0]);
+        result = tryToDisplayAsText(returned[0]);
       } catch (err) {
         console.error(err);
       }
     } else {
-      console.log("in else");
-
       const overrides = {};
       if (txValue) {
         overrides.value = txValue; // ethers.utils.parseEther()
@@ -229,17 +241,28 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
       // Uncomment this if you want to skip the gas estimation for each transaction
       // overrides.gasLimit = hexlify(1200000);
 
-      // console.log("Running with extras",extras)
-      console.log("here 2:");
-      console.log({ contractFunction });
-      console.log({ args });
-      console.log({ overrides });
-      console.log({ params: [args[0], [args[1]]] });
-      const { transaction_hash } = await contractFunction([args[0], [args[1]]]);
-      console.log({ transaction_hash });
-      console.log(`Waiting for Tx to be Accepted on Starknet - Minting...`);
-      const returned = await defaultProvider.waitForTransaction(transaction_hash);
-      //const returned = await tx(contractFunction(...args, overrides));
+      let parsedArgs = [];
+      functionInfo.inputs.map((input, index) => {
+        if (input.type === "Uint256") {
+          parsedArgs[index] = parseInputAmountToUint256(args[index]);
+        }
+        if (input.type === "felt") {
+          parsedArgs[index] = toFelt(args[index]);
+        }
+        // TODO: is this correct?
+        if (input.type === "felt*") {
+          parsedArgs[index] = toFelt(args[index]);
+        }
+      });
+
+      //const { transaction_hash } = await contractFunction([args[0], [args[1]]]);
+
+      console.log(`waiting for tx ${transaction_hash} to be accepted ...`);
+      let { transaction_hash } = await sendTransaction(contract, contractFunctionName, parsedArgs);
+      console.log(`Waiting for tx to be accepted on starknet ...`);
+      const returned = await provider.waitForTransaction(transaction_hash);
+      //const returned = await defaultProvider.waitForTransaction(transaction_hash);
+
       handleForm(returned);
       result = tryToDisplay(returned);
     }

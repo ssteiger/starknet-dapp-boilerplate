@@ -1,5 +1,8 @@
 import React from "react";
 
+import { isUint256, uint256ToBN } from "starknet/dist/utils/uint256";
+import { toFelt, toBN } from "starknet/dist/utils/number";
+
 import Address from "../Address";
 
 const { utils } = require("ethers");
@@ -29,6 +32,11 @@ const tryToDisplay = (thing, asText = false, blockExplorer) => {
       <span style={{ overflowWrap: "break-word", width: "100%" }}>{displayable.replaceAll(",", ",\n")}</span>
     );
   }
+
+  if (thing && isUint256(uint256ToBN(thing))) {
+    return uint256ToBN(isUint256).toString();
+  }
+
   return JSON.stringify(thing);
 };
 

@@ -8,9 +8,7 @@ const DisplayVariable = ({ contractFunction, functionInfo, refreshRequired, trig
 
   const refresh = useCallback(async () => {
     try {
-      console.log("now calling contract function:");
       const funcResponse = await contractFunction();
-      console.log({ funcResponse });
       setVariable(funcResponse);
       triggerRefresh(false);
     } catch (e) {

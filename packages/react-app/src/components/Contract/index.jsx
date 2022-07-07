@@ -95,6 +95,9 @@ export default function MyContract({
       return (
         <FunctionForm
           key={`FF${contractFuncInfo.name}`}
+          contract={contract}
+          contractFunctionName={contractFuncInfo.name}
+          //
           contractFunction={contractFunction}
           functionInfo={contractFuncInfo}
           provider={provider}
