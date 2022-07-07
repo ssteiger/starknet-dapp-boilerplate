@@ -21,7 +21,6 @@ import { utils } from "ethers";
 import BN, { isBN } from "bn.js";
 
 export const createContract = (abi, address) => {
-  console.log({ abi });
   const provider = getStarknet().provider;
   return new Contract(abi, address, provider);
 };
