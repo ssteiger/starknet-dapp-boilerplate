@@ -1,6 +1,19 @@
 import { Button, Col, Divider, Input, Row, Tooltip } from "antd";
 import React, { useState } from "react";
 import Blockies from "react-blockies";
+import { Account, Contract, defaultProvider, ec, json, number } from "starknet";
+import {
+  StarknetProvider,
+  useContract,
+  useStarknetBlock,
+  useStarknetCall,
+  useStarknetInvoke,
+  useStarknetTransactionManager,
+  Transaction,
+  useStarknet,
+  InjectedConnector,
+  ConnectorNotFoundError,
+} from "@starknet-react/core";
 
 import { Transactor } from "../../helpers";
 import { tryToDisplay, tryToDisplayAsText } from "./utils";
@@ -16,8 +29,6 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
   const [form, setForm] = useState({});
   const [txValue, setTxValue] = useState();
   const [returnValue, setReturnValue] = useState();
-
-  const tx = Transactor(provider, gasPrice);
 
   const inputs = functionInfo.inputs.map((input, inputIndex) => {
     const key = getFunctionInputKey(functionInfo, input, inputIndex);
@@ -190,15 +201,24 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
     });
 
     let result;
+    console.log("here before if:");
     if (functionInfo.stateMutability === "view" || functionInfo.stateMutability === "pure") {
+      console.log("after if");
       try {
-        const returned = await contractFunction(...args);
+        console.log({ contractFunction });
+        console.log({ args });
+        console.log("now await contractFunction(args) :");
+        console.log({ contractFunction });
+        const returned = await contractFunction(args);
+        console.log({ returned });
         handleForm(returned);
         result = tryToDisplayAsText(returned);
       } catch (err) {
         console.error(err);
       }
     } else {
+      console.log("in else");
+
       const overrides = {};
       if (txValue) {
         overrides.value = txValue; // ethers.utils.parseEther()
@@ -210,7 +230,16 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
       // overrides.gasLimit = hexlify(1200000);
 
       // console.log("Running with extras",extras)
-      const returned = await tx(contractFunction(...args, overrides));
+      console.log("here 2:");
+      console.log({ contractFunction });
+      console.log({ args });
+      console.log({ overrides });
+      console.log({ params: [args[0], [args[1]]] });
+      const { transaction_hash } = await contractFunction([args[0], [args[1]]]);
+      console.log({ transaction_hash });
+      console.log(`Waiting for Tx to be Accepted on Starknet - Minting...`);
+      const returned = await defaultProvider.waitForTransaction(transaction_hash);
+      //const returned = await tx(contractFunction(...args, overrides));
       handleForm(returned);
       result = tryToDisplay(returned);
     }

@@ -1,6 +1,8 @@
-import { Card } from "antd";
-import { useContractExistsAtAddress, useContractLoader } from "eth-hooks";
 import React, { useMemo, useState } from "react";
+import { useContractExistsAtAddress, useContractLoader } from "eth-hooks";
+import { StarknetProvider, InjectedConnector } from "@starknet-react/core";
+import { Contract } from "starknet";
+
 import Address from "../Address";
 import Balance from "../Balance";
 import DisplayVariable from "./DisplayVariable";
@@ -11,17 +13,11 @@ const noContractDisplay = (
     Loading...{" "}
     <div style={{ padding: 32 }}>
       You need to run{" "}
-      <span
-        className="highlight"
-        style={{ marginLeft: 4, /* backgroundColor: "#f1f1f1", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-      >
+      <span className="highlight" style={{ marginLeft: 4, padding: 4, borderRadius: 4, fontWeight: "bolder" }}>
         yarn run chain
       </span>{" "}
       and{" "}
-      <span
-        className="highlight"
-        style={{ marginLeft: 4, /* backgroundColor: "#f1f1f1", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-      >
+      <span className="highlight" style={{ marginLeft: 4, padding: 4, borderRadius: 4, fontWeight: "bolder" }}>
         yarn run deploy
       </span>{" "}
       to see your contract here.
@@ -31,10 +27,7 @@ const noContractDisplay = (
         ☢️
       </span>
       Warning: You might need to run
-      <span
-        className="highlight"
-        style={{ marginLeft: 4, /* backgroundColor: "#f1f1f1", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-      >
+      <span className="highlight" style={{ marginLeft: 4, padding: 4, borderRadius: 4, fontWeight: "bolder" }}>
         yarn run deploy
       </span>{" "}
       <i>again</i> after the frontend comes up!
@@ -44,8 +37,7 @@ const noContractDisplay = (
 
 const isQueryable = fn => (fn.stateMutability === "view" || fn.stateMutability === "pure") && fn.inputs.length === 0;
 
-export default function Contract({
-  customContract,
+export default function MyContract({
   account,
   gasPrice,
   signer,
@@ -54,44 +46,44 @@ export default function Contract({
   show,
   price,
   blockExplorer,
-  chainId,
+  chainId = "1536727068981429685321", // TODO:
   contractConfig,
 }) {
-  const contracts = useContractLoader(provider, contractConfig, chainId);
-  let contract;
-  if (!customContract) {
-    contract = contracts ? contracts[name] : "";
-  } else {
-    contract = customContract;
+  const [refreshRequired, triggerRefresh] = useState(false);
+
+  const { deployedContracts = {}, externalContracts = {} } = contractConfig || {};
+  const starknetContract = deployedContracts[chainId].starknetGoerli.contracts[name];
+
+  if (!deployedContracts[chainId].starknetGoerli.contracts[name]) {
+    return <div>Could not find contract. Are you sure you have deployed it?</div>;
   }
 
+  const starknetContracts = {};
+  starknetContracts[name] = new Contract(starknetContract.abi, starknetContract.address, account);
+  console.log({ starknetContracts });
+  const contract = starknetContracts[name];
+
+  const contractFunctions = contract.functions;
+
   const address = contract ? contract.address : "";
-  const contractIsDeployed = useContractExistsAtAddress(provider, address);
+  // TODO: check if contract is deployed
+  //const contractIsDeployed = useContractExistsAtAddress(provider, address);
+  const contractIsDeployed = deployedContracts[chainId]?.starknetGoerli?.contracts[name];
 
-  const displayedContractFunctions = useMemo(() => {
-    const results = contract
-      ? Object.entries(contract.interface.functions).filter(
-          fn => fn[1]["type"] === "function" && !(show && show.indexOf(fn[1]["name"]) < 0),
-        )
-      : [];
-    return results;
-  }, [contract, show]);
+  const contractDisplay = contract.abi.map(contractFuncInfo => {
+    if (contractFuncInfo.type === "function") {
+      const contractFunction =
+        contractFuncInfo.stateMutability === "view" ? contract[contractFuncInfo.name] : contract[contractFuncInfo.name]; // TODO: redundant
+      //contract.connect(signer)[contractFuncInfo[0]]; // TODO: use contract.populateTransaction ?
 
-  const [refreshRequired, triggerRefresh] = useState(false);
-  const contractDisplay = displayedContractFunctions.map(contractFuncInfo => {
-    const contractFunc =
-      contractFuncInfo[1].stateMutability === "view" || contractFuncInfo[1].stateMutability === "pure"
-        ? contract[contractFuncInfo[0]]
-        : contract.connect(signer)[contractFuncInfo[0]];
-
-    if (typeof contractFunc === "function") {
-      if (isQueryable(contractFuncInfo[1])) {
-        // If there are no inputs, just display return value
+      // const contractFunc = contract.connect(signer)[contractFuncInfo[0]];
+      if (isQueryable(contractFuncInfo)) {
+        // if there are no inputs, just display return value
         return (
           <DisplayVariable
-            key={contractFuncInfo[1].name}
-            contractFunction={contractFunc}
-            functionInfo={contractFuncInfo[1]}
+            key={contractFuncInfo.name}
+            contractFunction={contractFunction}
+            functionInfo={contractFuncInfo}
             refreshRequired={refreshRequired}
             triggerRefresh={triggerRefresh}
             blockExplorer={blockExplorer}
@@ -99,12 +91,12 @@ export default function Contract({
         );
       }
 
-      // If there are inputs, display a form to allow users to provide these
+      // if there are inputs, display a form to allow users to provide these
       return (
         <FunctionForm
-          key={"FF" + contractFuncInfo[0]}
-          contractFunction={contractFunc}
-          functionInfo={contractFuncInfo[1]}
+          key={`FF${contractFuncInfo.name}`}
+          contractFunction={contractFunction}
+          functionInfo={contractFuncInfo}
           provider={provider}
           gasPrice={gasPrice}
           triggerRefresh={triggerRefresh}
