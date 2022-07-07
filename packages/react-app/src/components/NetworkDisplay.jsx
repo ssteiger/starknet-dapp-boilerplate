@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/solid";
 import { switchNetworks } from "../helpers";

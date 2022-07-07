@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import React, { useCallback, useMemo, useState } from "react";
 import { Select } from "antd";
 import { ethers } from "ethers";
-import React, { useCallback, useMemo, useState } from "react";
 import Blockie from "./Blockie";
 
 // probably we need to change value={toAddress} to address={toAddress}

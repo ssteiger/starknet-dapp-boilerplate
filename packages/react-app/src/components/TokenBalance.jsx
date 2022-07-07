@@ -1,5 +1,5 @@
-import { useTokenBalance } from "eth-hooks/erc/erc-20/useTokenBalance";
 import React, { useState } from "react";
+import { useTokenBalance } from "eth-hooks/erc/erc-20/useTokenBalance";
 
 import { utils } from "ethers";
 
