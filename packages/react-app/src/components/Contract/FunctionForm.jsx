@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Input, Row, Tooltip } from "antd";
+import { Col, Divider, Row, Tooltip } from "antd";
 import React, { useState } from "react";
 import Blockies from "react-blockies";
 
@@ -16,6 +16,24 @@ import {
 import { tryToDisplay, tryToDisplayAsText } from "./utils";
 
 const { utils, BigNumber } = require("ethers");
+
+const parseArgs = (functionInfo, args) => {
+  let parsedArgs = [];
+  functionInfo.inputs.map((input, index) => {
+    if (input.type === "Uint256") {
+      parsedArgs[index] = parseInputAmountToUint256(args[index]);
+    }
+    if (input.type === "felt") {
+      parsedArgs[index] = toFelt(args[index]);
+    }
+    // TODO: is this correct?
+    if (input.type === "felt*") {
+      parsedArgs[index] = toFelt(args[index]);
+    }
+  });
+
+  return parsedArgs;
+};
 
 const getFunctionInputKey = (functionInfo, input, inputIndex) => {
   const name = input?.name ? input.name : "input_" + inputIndex + "_";
@@ -207,22 +225,8 @@ export default function FunctionForm({
 
     let result;
     if (functionInfo.stateMutability === "view" || functionInfo.stateMutability === "pure") {
-      let parsedArgs = [];
       try {
-        functionInfo.inputs.map((input, index) => {
-          console.log({ input });
-          if (input.type === "Uint256") {
-            parsedArgs[index] = parseInputAmountToUint256(args[index]);
-          }
-          if (input.type === "felt") {
-            parsedArgs[index] = toFelt(args[index]);
-          }
-          // TODO: is this correct?
-          if (input.type === "felt*") {
-            parsedArgs[index] = toFelt(args[index]);
-          }
-        });
-        // const _balanceOf = await callContract(erc721Contract, "balanceOf", address);
+        const parsedArgs = parseArgs(functionInfo, args);
         const returned = await callContract(contract, contractFunctionName, ...parsedArgs);
         if (!returned.length) throw new Error("Can not read return value array");
         handleForm(returned[0]);
@@ -241,25 +245,13 @@ export default function FunctionForm({
       // Uncomment this if you want to skip the gas estimation for each transaction
       // overrides.gasLimit = hexlify(1200000);
 
-      let parsedArgs = [];
-      functionInfo.inputs.map((input, index) => {
-        if (input.type === "Uint256") {
-          parsedArgs[index] = parseInputAmountToUint256(args[index]);
-        }
-        if (input.type === "felt") {
-          parsedArgs[index] = toFelt(args[index]);
-        }
-        // TODO: is this correct?
-        if (input.type === "felt*") {
-          parsedArgs[index] = toFelt(args[index]);
-        }
-      });
+      const parsedArgs = parseArgs(functionInfo, args);
 
       //const { transaction_hash } = await contractFunction([args[0], [args[1]]]);
 
-      console.log(`waiting for tx ${transaction_hash} to be accepted ...`);
+      console.log(`waiting for tx to be accepted on starknet ...`);
       let { transaction_hash } = await sendTransaction(contract, contractFunctionName, parsedArgs);
-      console.log(`Waiting for tx to be accepted on starknet ...`);
+      console.log(`waiting for tx ${transaction_hash} to be accepted ...`);
       const returned = await provider.waitForTransaction(transaction_hash);
       //const returned = await defaultProvider.waitForTransaction(transaction_hash);
 
