@@ -113,18 +113,18 @@ export default function MyContract({
     <div style={{ margin: "auto", width: "70vw" }}>
       <div
         className="font-normal text-gray-900 dark:text-white"
-        title={
-          <div style={{ fontSize: 24 }}>
-            {name}
-            <div style={{ float: "right" }}>
-              <Address value={address} />
-              <Balance address={address} provider={provider} price={price} />
-            </div>
-          </div>
-        }
         style={{ marginTop: 25, width: "100%" }}
         loading={contractDisplay && contractDisplay.length <= 0}
       >
+        <div className="flex font-normal text-lg text-center mb-10 text-gray-900 dark:text-white">
+          <div className="flex-grow">{name}</div>
+          <div className="flex-grow">
+            <Address value={address} />
+          </div>
+          <div className="flex-grow">
+            <Balance address={address} provider={provider} price={price} />
+          </div>
+        </div>
         {contractIsDeployed ? contractDisplay : noContractDisplay}
       </div>
     </div>
