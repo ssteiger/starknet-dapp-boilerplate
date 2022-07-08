@@ -1,3 +1,5 @@
+import { encodeShortString, decodeShortString } from "starknet/dist/utils/shortString";
+
 // MY INFURA_ID, SWAP IN YOURS FROM https://infura.io/dashboard/ethereum
 export const INFURA_ID = "";
 
@@ -13,17 +15,16 @@ export const NETWORKS = {
   localhost: {
     name: "localhost",
     color: "#666666",
-    chainId: 31337, // TODO:
-    rpcUrl: "",
+    // https://stackoverflow.com/questions/72909464/how-to-get-starknet-chainid-using-javascript
+    chainId: encodeShortString("SN_LOCALHOST"),
+    rpcUrl: "http://localhost:5000",
     blockExplorer: "",
     faucet: "",
   },
   starknet: {
     name: "starknet",
     color: "#17174C",
-    // https://starknet.io/documentation/chain-ids/
-    // chainId: int.from_bytes(b'SN_MAIN', byteorder="big", signed=False)
-    chainId: 23448594291968334,
+    chainId: encodeShortString("SN_MAIN"),
     rpcUrl: "",
     blockExplorer: "https://voyager.online/",
     faucet: "",
@@ -31,13 +32,12 @@ export const NETWORKS = {
   starknetGoerli: {
     name: "starknetGoerli",
     color: "#f6643c",
-    // https://starknet.io/documentation/chain-ids/
-    // chainId: int.from_bytes(b'SN_GOERLI', byteorder="big", signed=False)
-    chainId: 1536727068981429685321,
+    chainId: encodeShortString("SN_GOERLI"),
     rpcUrl: "",
     blockExplorer: "https://goerli.voyager.online/",
     faucet: "https://faucet.goerli.starknet.io/",
   },
+  /*
   mainnet: {
     name: "mainnet",
     color: "#ff8b9e",
@@ -54,6 +54,7 @@ export const NETWORKS = {
     blockExplorer: "https://goerli.etherscan.io/",
     faucet: "https://goerli-faucet.slock.it/",
   },
+  */
 };
 
 export const NETWORK = chainId => {
