@@ -1,4 +1,4 @@
-import starknet, {
+import {
   Contract,
   Account,
   defaultProvider,
@@ -12,11 +12,13 @@ import starknet, {
   uint256,
   Abi,
 } from "starknet";
-import { getStarknet } from "get-starknet";
 // https://github.com/0xs34n/starknet.js/blob/develop/src/utils/shortString.ts
 import { encodeShortString, decodeShortString } from "starknet/dist/utils/shortString";
 // https://github.com/0xs34n/starknet.js/blob/develop/src/utils/number.ts
 import { toFelt, toBN } from "starknet/dist/utils/number";
+// https://github.com/0xs34n/starknet.js/blob/develop/src/utils/uint256.ts
+import { isUint256, uint256ToBN } from "starknet/dist/utils/uint256";
+import { getStarknet } from "get-starknet";
 import { utils } from "ethers";
 import BN, { isBN } from "bn.js";
 
