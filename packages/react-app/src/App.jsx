@@ -44,20 +44,19 @@ import {
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 // contracts
-import deployedStarknetContracts from "./contracts/hardhat_starknet_contracts";
 import externalContracts from "./contracts/external_contracts";
-import deployedContracts from "./contracts/hardhat_contracts.json";
+import deployedContracts from "./contracts/hardhat_starknet_contracts";
+// import deployedContracts from "./contracts/hardhat_contracts.json";
 
 import { Transactor, Web3ModalSetup, classNames } from "./helpers";
-import { Home, ExampleUI, Hints, Subgraph } from "./views";
+import { Home, ExampleUI } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
 
 // 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const initialNetwork = NETWORKS.starknetGoerli; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
-// 😬 Sorry for all the console logging
 const DEBUG = false;
 const NETWORKCHECK = true;
 const USE_BURNER_WALLET = false; // toggle burner wallet feature
@@ -72,9 +71,9 @@ const providers = [
 ];
 
 function App(props) {
-  // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
+  // specify all the chains your app is available on, eg: ['localhost', 'starknet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, "mainnet", "starknet", "rinkeby", "goerli"];
+  const networkOptions = [initialNetwork.name, "starknet-goerli", "starknet"];
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
@@ -83,48 +82,21 @@ function App(props) {
 
   const targetNetwork = NETWORKS[selectedNetwork];
 
-  // 🔭 block explorer URL
-  const blockExplorer = targetNetwork.blockExplorer;
+  // 🔭 block explorer url
+  const { blockExplorer } = targetNetwork;
 
   // load all your providers
-  const localProvider = useStaticJsonRPC([
-    process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : targetNetwork.rpcUrl,
-  ]);
-  const mainnetProvider = useStaticJsonRPC(providers);
+
+  const connectors = [new InjectedConnector({ showModal: true })];
 
   if (DEBUG) console.log(`Using ${selectedNetwork} network`);
 
   // 🛰 providers
   if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 
-  const logoutOfWeb3Modal = async () => {
-    await web3Modal.clearCachedProvider();
-    if (injectedProvider && injectedProvider.provider && typeof injectedProvider.provider.disconnect == "function") {
-      await injectedProvider.provider.disconnect();
-    }
-    setTimeout(() => {
-      window.location.reload();
-    }, 1);
-  };
-
-  // use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
-  const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider, USE_BURNER_WALLET);
-  const userSigner = userProviderAndSigner.signer;
-
-  useEffect(() => {
-    async function getAddress() {
-      if (userSigner) {
-        const newAddress = await userSigner.getAddress();
-        setAddress(newAddress);
-      }
-    }
-    getAddress();
-  }, [userSigner]);
-
   // You can warn the user if you would like them to be on a specific network
-  const localChainId = localProvider && localProvider._network && localProvider._network.chainId;
-  const selectedChainId =
-    userSigner && userSigner.provider && userSigner.provider._network && userSigner.provider._network.chainId;
+  const localChainId = "TODO";
+  const selectedChainId = "TODO";
 
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
@@ -132,26 +104,29 @@ function App(props) {
   const gasPrice = useGasPrice(targetNetwork, "fast");
 
   // The transactor wraps transactions and provides notificiations
+  /*
   const tx = Transactor(userSigner, gasPrice);
 
   const yourLocalBalance = useBalance(localProvider, address);
 
   const yourMainnetBalance = useBalance(mainnetProvider, address);
+  */
 
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
-  const price = useExchangeEthPrice(targetNetwork, mainnetProvider);
+  //const price = useExchangeEthPrice(targetNetwork, mainnetProvider);
 
   // const contractConfig = useContractConfig();
 
   const contractConfig = {
-    deployedContracts: deployedStarknetContracts || {},
+    deployedContracts: deployedContracts || {},
     externalContracts: externalContracts || {},
   };
 
-  // Load in your local 📝 contract and read a value from it:
+  /*
+  // TODO: check if this works for starknet contracts
   const readContracts = useContractLoader(localProvider, contractConfig);
 
-  // If you want to make 🔐 write transactions to your contracts, use the userSigner:
+  // TODO: check if this works for starknet contracts
   const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
 
   // EXTERNAL CONTRACT EXAMPLE:
@@ -165,50 +140,19 @@ function App(props) {
   ]);
 
   // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(readContracts, "YourContract", "purpose");
+  //const purpose = useContractReader(readContracts, "YourContract", "purpose");
+  */
 
   // 👨‍💻 debug 👨‍💻
   useEffect(() => {
-    if (DEBUG && mainnetProvider && address && selectedChainId && readContracts && writeContracts && mainnetContracts) {
+    if (DEBUG) {
       console.log("_____________________________________ 👨‍💻 debug _____________________________________");
-      console.log("🌎 mainnetProvider", mainnetProvider);
-      console.log("🏠 localChainId", localChainId);
-      console.log("👩‍💼 selected address:", address);
-      console.log("🕵🏻‍♂️ selectedChainId:", selectedChainId);
-      console.log("📝 readContracts", readContracts);
-      console.log("🔐 writeContracts", writeContracts);
+      console.log("localChainId", localChainId);
+      console.log("selected address:", address);
+      console.log("selectedChainId:", selectedChainId);
+      console.log("contractConfig:", contractConfig);
     }
-  }, [mainnetProvider, address, selectedChainId, readContracts, writeContracts, mainnetContracts, localChainId]);
-
-  const loadWeb3Modal = useCallback(async () => {
-    const provider = await web3Modal.connect();
-    setInjectedProvider(new ethers.providers.Web3Provider(provider));
-
-    provider.on("chainChanged", chainId => {
-      console.log(`chain changed to ${chainId}! updating providers`);
-      setInjectedProvider(new ethers.providers.Web3Provider(provider));
-    });
-
-    provider.on("accountsChanged", () => {
-      console.log(`account changed!`);
-      setInjectedProvider(new ethers.providers.Web3Provider(provider));
-    });
-
-    // subscribe to session disconnection
-    provider.on("disconnect", (code, reason) => {
-      console.log(code, reason);
-      logoutOfWeb3Modal();
-    });
-    // eslint-disable-next-line
-  }, [setInjectedProvider]);
-
-  useEffect(() => {
-    if (web3Modal.cachedProvider) {
-      loadWeb3Modal();
-    }
-  }, [loadWeb3Modal]);
-
-  const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
+  }, [address, selectedChainId, contractConfig, localChainId]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -220,8 +164,6 @@ function App(props) {
     { name: "ExampleUI", href: "/exampleui", icon: TemplateIcon },
     { name: "Subgraph", href: "/subgraph", icon: ShareIcon },
   ];
-
-  const connectors = [new InjectedConnector({ showModal: true })];
 
   return (
     <>
@@ -374,7 +316,8 @@ function App(props) {
                     />
                   )}
                   <Account
-                    useBurner={USE_BURNER_WALLET}
+                    blockExplorer={blockExplorer}
+                    /*
                     address={address}
                     localProvider={localProvider}
                     userSigner={userSigner}
@@ -383,7 +326,7 @@ function App(props) {
                     web3Modal={web3Modal}
                     loadWeb3Modal={loadWeb3Modal}
                     logoutOfWeb3Modal={logoutOfWeb3Modal}
-                    blockExplorer={blockExplorer}
+                    */
                   />
                 </div>
               </div>
@@ -391,15 +334,15 @@ function App(props) {
               <div className="grow flex-1 bg-white dark:bg-gray-800 shadow dark:shadow-gray-700">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
                   <Routes>
-                    <Route path="/" element={<Home contractConfig={contractConfig} readContracts={readContracts} />} />
+                    <Route path="/" element={<Home contractConfig={contractConfig} />} />
                     <Route
                       path="/erc721-contract"
                       element={
                         <Contract
                           name="ERC721"
-                          price={price}
-                          signer={userSigner}
-                          provider={localProvider}
+                          //price={price}
+                          //signer={userSigner}
+                          //provider={localProvider}
                           address={address}
                           blockExplorer={blockExplorer}
                           contractConfig={contractConfig}
@@ -413,65 +356,23 @@ function App(props) {
                         <>
                           <Contract
                             name="Account"
-                            price={price}
-                            signer={userSigner}
-                            provider={localProvider}
+                            //price={price}
+                            //signer={userSigner}
+                            //provider={localProvider}
                             address={address}
                             blockExplorer={blockExplorer}
                             contractConfig={contractConfig}
                           />
                           <Contract
                             name="ERC721"
-                            price={price}
-                            signer={userSigner}
-                            provider={localProvider}
+                            //price={price}
+                            //signer={userSigner}
+                            //provider={localProvider}
                             address={address}
                             blockExplorer={blockExplorer}
                             contractConfig={contractConfig}
                           />
                         </>
-                      }
-                    />
-
-                    <Route
-                      path="/hints"
-                      element={
-                        <Hints
-                          address={address}
-                          yourLocalBalance={yourLocalBalance}
-                          mainnetProvider={mainnetProvider}
-                          price={price}
-                        />
-                      }
-                    />
-
-                    <Route
-                      path="/exampleui"
-                      element={
-                        <ExampleUI
-                          address={address}
-                          userSigner={userSigner}
-                          mainnetProvider={mainnetProvider}
-                          localProvider={localProvider}
-                          yourLocalBalance={yourLocalBalance}
-                          price={price}
-                          tx={tx}
-                          writeContracts={writeContracts}
-                          readContracts={readContracts}
-                          purpose={purpose}
-                        />
-                      }
-                    />
-
-                    <Route
-                      path="/subgraph"
-                      element={
-                        <Subgraph
-                          subgraphUri={props.subgraphUri}
-                          tx={tx}
-                          writeContracts={writeContracts}
-                          mainnetProvider={mainnetProvider}
-                        />
                       }
                     />
                   </Routes>
@@ -480,10 +381,10 @@ function App(props) {
             </div>
           </div>
         </div>
-        {/* Global notification live region, render this permanently at the end of the document */}
+        {/* global notification live region, render this permanently at the end of the document */}
         <div aria-live="assertive" className="fixed inset-0 flex items-start px-4 pt-20 pb-6 pointer-events-none">
           <div className="w-full flex flex-col items-end space-y-4">
-            {/* Alert if wrong network is selected */}
+            {/* alert if wrong network is selected */}
             <NetworkDisplay
               NETWORKCHECK={NETWORKCHECK}
               localChainId={localChainId}
