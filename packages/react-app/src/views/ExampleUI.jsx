@@ -1,214 +1,107 @@
-import { Button, Card, DatePicker, Divider, Input, Progress, Slider, Spin, Switch } from "antd";
-import React, { useState } from "react";
-import { utils } from "ethers";
-import { SyncOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { stark, Abi, Contract, uint256 } from "starknet";
+import { toFelt, toBN } from "starknet/dist/utils/number";
+import { isUint256, uint256ToBN } from "starknet/dist/utils/uint256";
+import { getStarknet } from "get-starknet";
+import { Contract as ContractUI } from "../components";
+import { createContract, callContract, sendTransaction, parseInputAmountToUint256 } from "../helpers/starknet";
 
-import { Address, Balance, Events } from "../components";
+function Home({ contractConfig, readContracts }) {
+  const { provider } = getStarknet();
+  // account
+  // contract address: 0x0358576968ff2ea1e9537e0fb8f063b4d047bb8958fdd57485782a9d37ecb9ee
+  // public key: 0x02a1a39159689137a15eb583dd72c626f9602987a6d6b2f8281decbbdad4bff1
+  // private key: 0x262f5da99e4d1a0a98e2a21eb3cd75784468ae7d38877c7d743523374070d4e
+  const accountAddress = "0x0358576968ff2ea1e9537e0fb8f063b4d047bb8958fdd57485782a9d37ecb9ee";
+  // const account = new starknet.Account(provider, accountAddress, starkKeyPair);
 
-export default function ExampleUI({
-  purpose,
-  address,
-  mainnetProvider,
-  localProvider,
-  yourLocalBalance,
-  price,
-  tx,
-  readContracts,
-  writeContracts,
-}) {
-  const [newPurpose, setNewPurpose] = useState("loading...");
+  const { address, abi } =
+    contractConfig.deployedContracts["1536727068981429685321"].starknetGoerli.contracts["ERC721"];
+  // https://apibara.github.io/starknet-react/hooks/contract
+
+  const erc721Contract = createContract(abi, address);
+
+  const [balanceOf, setBalanceOf] = useState();
+  useEffect(() => {
+    const exec = async () => {
+      let _balanceOf = await callContract(erc721Contract, "balanceOf", address);
+      // NOTE: Cairo native type (felt, field element) is a 251 bit number in [0, prime),
+      //       uin256 cannot fit into that and so are split in two 128 bit halfs
+      _balanceOf = uint256ToBN(_balanceOf);
+      setBalanceOf(_balanceOf.toString());
+    };
+    exec();
+  }, [erc721Contract, address]);
+
+  const [totalSupply, setTotalSupply] = useState();
+  useEffect(() => {
+    const exec = async () => {
+      let _totalSupply = await callContract(erc721Contract, "totalSupply", address);
+      // NOTE: Cairo native type (felt, field element) is a 251 bit number in [0, prime),
+      //       uin256 cannot fit into that and so are split in two 128 bit halfs
+      _totalSupply = uint256ToBN(_totalSupply);
+      setTotalSupply(_totalSupply.toString());
+    };
+    exec();
+  }, [erc721Contract, address]);
+
+  const mintToken = async () => {
+    console.log(`mint token: ${totalSupply}`);
+    const transaction_response = await sendTransaction(erc721Contract, "mint", {
+      to: address,
+      token_id: parseInputAmountToUint256(totalSupply),
+    });
+    console.log(`waiting for tx ${transaction_response.transaction_hash} to be accepted`);
+    await provider.waitForTransaction(transaction_response.transaction_hash);
+  };
+
+  const approveToken_0 = async data => {
+    const transaction_response = await sendTransaction(erc721Contract, "approve", {
+      to: address,
+      token_id: parseInputAmountToUint256("0"),
+    });
+    console.log(`waiting for tx ${transaction_response.transaction_hash} to be accepted`);
+    await provider.waitForTransaction(transaction_response.transaction_hash);
+  };
 
   return (
     <div className="font-normal text-gray-900 dark:text-white">
-      {/*
-        ⚙️ Here is an example UI that displays and sets the purpose in your smart contract:
-      */}
-      <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
-        <h2 className="text-gray-900 dark:text-white">Example UI:</h2>
-        <h4 className="text-gray-900 dark:text-white">purpose: {purpose}</h4>
-        <Divider />
-        <div style={{ margin: 8 }}>
-          <Input
-            onChange={e => {
-              setNewPurpose(e.target.value);
-            }}
-          />
-          <Button
-            style={{ marginTop: 8 }}
-            onClick={async () => {
-              /* look how you call setPurpose on your contract: */
-              /* notice how you pass a call back for tx updates too */
-              const result = tx(writeContracts.YourContract.setPurpose(newPurpose), update => {
-                console.log("📡 Transaction Update:", update);
-                if (update && (update.status === "confirmed" || update.status === 1)) {
-                  console.log(" 🍾 Transaction " + update.hash + " finished!");
-                  console.log(
-                    " ⛽️ " +
-                      update.gasUsed +
-                      "/" +
-                      (update.gasLimit || update.gas) +
-                      " @ " +
-                      parseFloat(update.gasPrice) / 1000000000 +
-                      " gwei",
-                  );
-                }
-              });
-              console.log("awaiting metamask/web3 confirm result...", result);
-              console.log(await result);
-            }}
-          >
-            Set Purpose!
-          </Button>
+      <div style={{ margin: 32 }}>
+        <div>
+          Connected account:{" "}
+          <a target="_blank" href={`https://goerli.voyager.online/contract/${accountAddress}`} rel="noreferrer">
+            {accountAddress}
+          </a>
         </div>
-        <Divider />
-        Your Address:
-        <Address address={address} ensProvider={mainnetProvider} fontSize={16} />
-        <Divider />
-        ENS Address Example:
-        <Address
-          address="0x34aA3F359A9D614239015126635CE7732c18fDF3" /* this will show as austingriffith.eth */
-          ensProvider={mainnetProvider}
-          fontSize={16}
-        />
-        <Divider />
-        {/* use utils.formatEther to display a BigNumber: */}
-        <h2 className="text-gray-900 dark:text-white">
-          Your Balance: {yourLocalBalance ? utils.formatEther(yourLocalBalance) : "..."}
-        </h2>
-        <div className="text-gray-900 dark:text-white">OR</div>
-        <Balance address={address} provider={localProvider} price={price} />
-        <Divider />
-        <div className="text-gray-900 dark:text-white">🐳 Example Whale Balance:</div>
-        <Balance balance={utils.parseEther("1000")} provider={localProvider} price={price} />
-        <Divider />
-        {/* use utils.formatEther to display a BigNumber: */}
-        <h2 className="text-gray-900 dark:text-white">
-          Your Balance: {yourLocalBalance ? utils.formatEther(yourLocalBalance) : "..."}
-        </h2>
-        <Divider />
-        Your Contract Address:
-        <Address
-          address={readContracts && readContracts.YourContract ? readContracts.YourContract.address : null}
-          ensProvider={mainnetProvider}
-          fontSize={16}
-        />
-        <Divider />
-        <div style={{ margin: 8 }}>
-          <Button
-            onClick={() => {
-              /* look how you call setPurpose on your contract: */
-              tx(writeContracts.YourContract.setPurpose("🍻 Cheers"));
-            }}
-          >
-            Set Purpose to &quot;🍻 Cheers&quot;
-          </Button>
+
+        <br />
+
+        <div>
+          Contract address: <a href={`https://goerli.voyager.online/contract/${address}`}>{address}</a>
         </div>
-        <div style={{ margin: 8 }}>
-          <Button
-            onClick={() => {
-              /*
-              you can also just craft a transaction and send it to the tx() transactor
-              here we are sending value straight to the contract's address:
-            */
-              tx({
-                to: writeContracts.YourContract.address,
-                value: utils.parseEther("0.001"),
-              });
-              /* this should throw an error about "no fallback nor receive function" until you add it */
-            }}
-          >
-            Send Value
-          </Button>
-        </div>
-        <div style={{ margin: 8 }}>
-          <Button
-            onClick={() => {
-              /* look how we call setPurpose AND send some value along */
-              tx(
-                writeContracts.YourContract.setPurpose("💵 Paying for this one!", {
-                  value: utils.parseEther("0.001"),
-                }),
-              );
-              /* this will fail until you make the setPurpose function payable */
-            }}
-          >
-            Set Purpose With Value
-          </Button>
-        </div>
-        <div style={{ margin: 8 }}>
-          <Button
-            onClick={() => {
-              /* you can also just craft a transaction and send it to the tx() transactor */
-              tx({
-                to: writeContracts.YourContract.address,
-                value: utils.parseEther("0.001"),
-                data: writeContracts.YourContract.interface.encodeFunctionData("setPurpose(string)", [
-                  "🤓 Whoa so 1337!",
-                ]),
-              });
-              /* this should throw an error about "no fallback nor receive function" until you add it */
-            }}
-          >
-            Another Example
-          </Button>
-        </div>
-      </div>
 
-      {/*
-        📑 Maybe display a list of events?
-          (uncomment the event and emit line in YourContract.sol! )
-      */}
-      <Events
-        contracts={readContracts}
-        contractName="YourContract"
-        eventName="SetPurpose"
-        localProvider={localProvider}
-        mainnetProvider={mainnetProvider}
-        startBlock={1}
-      />
+        <br />
 
-      <div style={{ width: 600, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
-        <Card style={{ marginTop: 32 }}>
-          <div>
-            There are tons of generic components included from{" "}
-            <a href="https://ant.design/components/overview/" target="_blank" rel="noopener noreferrer">
-              🐜 ant.design
-            </a>{" "}
-            too!
-          </div>
+        <div>My NFT balance: {balanceOf}</div>
 
-          <div style={{ marginTop: 8 }}>
-            <Button type="primary">Buttons</Button>
-          </div>
+        <br />
 
-          <div style={{ marginTop: 8 }}>
-            <SyncOutlined spin /> Icons
-          </div>
+        <button
+          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+          onClick={() => mintToken()}
+        >
+          mint
+        </button>
 
-          <div style={{ marginTop: 8 }}>
-            Date Pickers?
-            <div style={{ marginTop: 2 }}>
-              <DatePicker onChange={() => {}} />
-            </div>
-          </div>
-
-          <div style={{ marginTop: 32 }}>
-            <Slider range defaultValue={[20, 50]} onChange={() => {}} />
-          </div>
-
-          <div style={{ marginTop: 32 }}>
-            <Switch defaultChecked onChange={() => {}} />
-          </div>
-
-          <div style={{ marginTop: 32 }}>
-            <Progress percent={50} status="active" />
-          </div>
-
-          <div style={{ marginTop: 32 }}>
-            <Spin />
-          </div>
-        </Card>
+        <button
+          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+          onClick={() => approveToken_0()}
+        >
+          approve token 0
+        </button>
       </div>
     </div>
   );
 }
+
+export default Home;

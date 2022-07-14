@@ -6,7 +6,7 @@ import { getStarknet } from "get-starknet";
 import { Contract as ContractUI } from "../components";
 import { createContract, callContract, sendTransaction, parseInputAmountToUint256 } from "../helpers/starknet";
 
-function Home({ contractConfig, readContracts }) {
+function Home({ contractConfig }) {
   const { provider } = getStarknet();
   // account
   // contract address: 0x0358576968ff2ea1e9537e0fb8f063b4d047bb8958fdd57485782a9d37ecb9ee
