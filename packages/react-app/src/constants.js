@@ -17,7 +17,7 @@ export const NETWORKS = {
     color: "#666666",
     // https://stackoverflow.com/questions/72909464/how-to-get-starknet-chainid-using-javascript
     chainId: encodeShortString("SN_LOCALHOST"),
-    rpcUrl: "http://localhost:5000",
+    rpcUrl: "http://localhost:5050",
     blockExplorer: "",
     faucet: "",
   },
