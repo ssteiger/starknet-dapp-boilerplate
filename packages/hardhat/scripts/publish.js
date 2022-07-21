@@ -1,6 +1,7 @@
 const fs = require("fs");
 const chalk = require("chalk");
 
+/*
 const graphDir = "../subgraph";
 const deploymentsDir = "./deployments";
 const publishDir = "../react-app/src/contracts";
@@ -82,3 +83,4 @@ main()
     console.error(error);
     process.exit(1);
   });
+*/
