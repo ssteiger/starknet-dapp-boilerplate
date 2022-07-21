@@ -8,8 +8,9 @@ Using Cairo, Hardhat and ReactJS.
 ### Install requirements for local starknet chain
 
 ```bash
-$ python3 -m venv cairo_venv
-$ source cairo_venv/bin/activate
+# see: https://www.cairo-lang.org/docs/quickstart.html
+$ python3 -m venv ~/cairo_venv
+$ source ~/cairo_venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
@@ -17,7 +18,12 @@ $ pip install -r requirements.txt
 
 ```bash
 $ starknet-devnet
+
+# check if chain is running
+$ curl http://127.0.0.1:5050/is_alive
 ```
+
+### Prepare js environment and start frontend
 
 ```bash
 # install js dependencies
