@@ -80,6 +80,4 @@ $ sudo npx hardhat starknet-verify --starknet-network alpha-goerli --path ./cont
 * [goerli starknet block explorer](https://goerli.voyager.online/)
 * [example deployment](https://goerli.voyager.online/contract/0x0585feed17184d7990c57febcbb8e185f6607f49a2152c2965da5f01d373a405)
 * [starknet goerli faucet](https://faucet.goerli.starknet.io/)
-
-
-TODO: take a look at this: https://github.com/FawadHa1der/optionsui/blob/950decdac6be691d18d4c40cafc708f4500f70e3/src/pages/photos.tsx
+* [starknet-devnet](https://github.com/Shard-Labs/starknet-devnet)
