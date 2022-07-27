@@ -38,7 +38,6 @@ $ yarn chain
 $ yarn compile
 
 # deploy contracts
-# (maybe you first need to create the folder /packages/hardhat/deployments)
 $ yarn deploy
 
 # start app (in top level folder)
@@ -47,24 +46,19 @@ $ yarn start
 
 ## Accounts
 
-When running `yarn deploy` the deploy script in `packages/hardhat/deploy/00_deploy_your_contract.js` is executed.
+When running `yarn chain` a bunch of pre-funded accounts are logged in the terminal.
 
-The deploy script has a `CREATE_NEW_ACCOUNT` flag at the top:
+Pick one and go to `/packages/hardhat/example.env`.
 
-```javascript
-const CREATE_NEW_ACCOUNT = false;
-const FETCH_EXISTING_ACCOUNT = !CREATE_NEW_ACCOUNT;
-```
-
-Running the script for the first time, you'll need to create a new account.
-Deployments after that can reuse the created account.
-
-Toggle the bool flag and update the variables `const accountAddress` and `const privateKey` accordingly.
+Duplicate `example.env` and rename to `.env`.
+Then insert one of the private keys from the terminal at `DEPLOYER_PRIV_KEY=0x...`.
 
 ## Get some test eth
 
-1. Get some goerli testnet eth from the [goerli faucet](https://goerlifaucet.com/) ([alternative](https://goerli-faucet.slock.it/)).
-2. Then bridge it over to starknet using the [goerli starknet bridge](https://goerli.starkgate.starknet.io/).
+1. [Local network devnet faucet](https://github.com/Shard-Labs/starknet-devnet#mint-token---local-faucet)
+1. Public goerli testnet
+    1. Fetch from [goerli faucet](https://goerlifaucet.com/) ([alternative](https://goerli-faucet.slock.it/)).
+    2. Then bridge it over to starknet using the [goerli starknet bridge](https://goerli.starkgate.starknet.io/).
 
 ## Verify contract
 
@@ -72,6 +66,47 @@ Toggle the bool flag and update the variables `const accountAddress` and `const 
 $ cd starknet-mvp/packages/hardhat
 
 $ sudo npx hardhat starknet-verify --starknet-network alpha-goerli --path ./contracts/ERC721.cairo --address 0x0585feed17184d7990c57febcbb8e185f6607f49a2152c2965da5f01d373a405 --show-stack-traces
+```
+
+## Concepts / project structure
+
+When running `yarn deploy`, all contract information (target chain, address, abi, etc.) is written do the react frontend package at `packages/react-app/src/contracts/hardhat_starknet_contracts.json`.
+
+The contracts can then be accessed from inside any react component:
+
+```javascript
+import externalContracts from "./contracts/external_contracts";
+import deployedContracts from "./contracts/hardhat_starknet_contracts";
+```
+
+## Supported networks
+
+```javascript
+  localhost: {
+    name: "localhost",
+    color: "#666666",
+    // https://stackoverflow.com/questions/72909464/how-to-get-starknet-chainid-using-javascript
+    chainId: encodeShortString("SN_LOCALHOST"),
+    rpcUrl: "http://localhost:5050",
+    blockExplorer: "",
+    faucet: "",
+  },
+  starknetGoerli: {
+    name: "starknetGoerli",
+    color: "#f6643c",
+    chainId: encodeShortString("SN_GOERLI"),
+    rpcUrl: "",
+    blockExplorer: "https://goerli.voyager.online/",
+    faucet: "https://faucet.goerli.starknet.io/",
+  },
+  starknet: {
+    name: "starknet",
+    color: "#17174C",
+    chainId: encodeShortString("SN_MAIN"),
+    rpcUrl: "",
+    blockExplorer: "https://voyager.online/",
+    faucet: "",
+  }
 ```
 
 ## Resources
