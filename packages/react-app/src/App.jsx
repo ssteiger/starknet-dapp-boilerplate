@@ -59,6 +59,7 @@ const initialNetwork = NETWORKS.starknetGoerli; // <------- select your target f
 
 const DEBUG = false;
 const NETWORKCHECK = true;
+// TODO: implement https://github.com/dontpanicdao/starknet-burner
 const USE_BURNER_WALLET = false; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
 
@@ -73,7 +74,7 @@ const providers = [
 function App(props) {
   // specify all the chains your app is available on, eg: ['localhost', 'starknet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, "starknet-goerli", "starknet"];
+  const networkOptions = [initialNetwork.name, NETWORKS.starknetGoerli.name, NETWORKS.starknet.name];
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
