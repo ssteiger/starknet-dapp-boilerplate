@@ -27,12 +27,14 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 
 // select the network you want to deploy to here:
 const defaultNetwork = "devnet";
+// const defaultNetwork = "integrated-devnet"; // local chain -> https://github.com/Shard-Labs/starknet-devnet
 
 module.exports = {
   starknet: {
-    venv: "cairo_venv",
-    // network: "integrated-devnet",
-    network: "devnet",
+    // https://github.com/Shard-Labs/starknet-hardhat-plugin#runtime-network---integrated-devnet
+    // venv: "cairo_venv",
+    network: defaultNetwork,
+    // https://github.com/Shard-Labs/starknet-hardhat-plugin#wallet
     wallets: {
       MyWallet: {
         accountName: "MyWallet",
@@ -52,11 +54,14 @@ module.exports = {
     devnet: {
       url: "http://127.0.0.1:5050",
       args: ["--gas-price", "2000000000"],
+      accounts: [process.env.LOCAL_DEPLOYER_PRIV_KEY],
     },
     starknet: {
       url: "",
+      // accounts: [process.env.STARKNET_DEPLOYER_PRIV_KEY],
     },
   },
+  /*
   solidity: {
     compilers: [
       {
@@ -79,9 +84,7 @@ module.exports = {
       },
     ],
   },
-  ovm: {
-    solcVersion: "0.7.6",
-  },
+  */
   namedAccounts: {
     deployer: {
       default: 0, // here this will by default take the first account as deployer
@@ -89,8 +92,8 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      mainnet: "xxxxxxxx",
       // add other network's API key here
+      mainnet: "xxxxxxxx",
     },
   },
 };

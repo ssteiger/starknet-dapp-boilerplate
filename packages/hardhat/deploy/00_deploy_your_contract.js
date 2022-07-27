@@ -6,46 +6,60 @@ const fs = require("fs");
 
 const { shortStringToBigInt } = starknet;
 
-// https://starknet.io/documentation/chain-ids/
-const starknetGoerliChainId = "1536727068981429685321"; // SN_GOERLI
+// https://docs.starknet.io/docs/Blocks/transactions/#chain-id
+// SN_LOCALHOST, SN_GOERLI, SN_MAIN
+const chainName = "SN_LOCALHOST";
+// const chainName = "SN_GOERLI"
+// const chainName = "SN_MAIN"
+const chainId = shortStringToBigInt(chainName).toString();
 
-module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
+console.log({ chainName });
+console.log({ chainId });
+
+module.exports = async ({ getNamedAccounts, deployments }) => {
   /*
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  const chainId = await getChainId();
   */
 
   // see: https://www.npmjs.com/package/@shardlabs/starknet-hardhat-plugin#Account
   const accountName = "OpenZeppelin";
 
-  const CREATE_NEW_ACCOUNT = false;
-  const FETCH_EXISTING_ACCOUNT = !CREATE_NEW_ACCOUNT;
-
-  let account = null;
+  const account = null;
 
   console.log("");
 
-  if (CREATE_NEW_ACCOUNT) {
-    console.log(`now creating account with name: ${accountName}`);
-    account = await starknet.deployAccount(accountName);
-  }
+  const namedAccounts = await getNamedAccounts();
+  const { deployer } = namedAccounts;
 
-  if (FETCH_EXISTING_ACCOUNT) {
-    // fetch account if already generated
-    // TODO:
-    const accountAddress =
-      "0x0358576968ff2ea1e9537e0fb8f063b4d047bb8958fdd57485782a9d37ecb9ee";
-    const privateKey =
-      "0x262f5da99e4d1a0a98e2a21eb3cd75784468ae7d38877c7d743523374070d4e";
+  console.log({
+    LOCAL_DEPLOYER_ADDRESS: process.env.LOCAL_DEPLOYER_ADDRESS,
+    LOCAL_DEPLOYER_PRIV_KEY: process.env.LOCAL_DEPLOYER_PRIV_KEY,
+    accountName,
+  });
 
-    console.log(`now fetching account at address: ${accountAddress}`);
-    account = await starknet.getAccountFromAddress(
-      accountAddress,
-      privateKey,
+  let deployerAccount;
+  try {
+    console.log(`fetching account at ${process.env.LOCAL_DEPLOYER_ADDRESS}...`);
+
+    deployerAccount = await starknet.getAccountFromAddress(
+      process.env.LOCAL_DEPLOYER_ADDRESS,
+      process.env.LOCAL_DEPLOYER_PRIV_KEY,
       accountName
     );
+  } catch (e) {
+    // if no account exists at address, deploy
+    console.error(e);
+    console.log(`no account found at ${process.env.LOCAL_DEPLOYER_ADDRESS}`);
+    console.log("now deploying account...");
+    const accountWithPredefinedKey = await starknet.deployAccount(accountName, {
+      privateKey: process.env.LOCAL_DEPLOYER_PRIV_KEY,
+    });
+
+    deployerAccount = accountWithPredefinedKey;
   }
+
+  console.log({ deployerAccount, namedAccounts });
 
   console.log(
     "---------------------------------------------------------------------------------------"
@@ -61,6 +75,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   const contractName = "ERC721";
 
+  console.log(`fetching contract ${contractName} ...`);
   const contractERC721 = await starknet.getContractFactory(contractName);
 
   const contractERC721_deployed = await contractERC721.deploy({
@@ -98,11 +113,10 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   };
 
   const content = {
-    "1536727068981429685321": {
-      starknetGoerli: {
-        name: "starknetGoerli",
-        // chainId: int.from_bytes(b'SN_GOERLI', byteorder="big", signed=False)
-        chainId: "1536727068981429685321",
+    [chainId]: {
+      [chainName]: {
+        name: chainName,
+        chainId,
         contracts,
       },
     },
