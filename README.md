@@ -8,6 +8,11 @@ Using Cairo, Hardhat and ReactJS.
 ### Install requirements for local starknet chain
 
 ```bash
+# run
+$ sh ./start-local-chain.sh
+
+# or
+
 # see: https://www.cairo-lang.org/docs/quickstart.html
 $ python3 -m venv ~/cairo_venv
 $ source ~/cairo_venv/bin/activate
