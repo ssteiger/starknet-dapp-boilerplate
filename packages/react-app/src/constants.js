@@ -21,14 +21,6 @@ export const NETWORKS = {
     blockExplorer: "",
     faucet: "",
   },
-  starknet: {
-    name: "starknet",
-    color: "#17174C",
-    chainId: encodeShortString("SN_MAIN"),
-    rpcUrl: "",
-    blockExplorer: "https://voyager.online/",
-    faucet: "",
-  },
   starknetGoerli: {
     name: "starknetGoerli",
     color: "#f6643c",
@@ -36,6 +28,14 @@ export const NETWORKS = {
     rpcUrl: "",
     blockExplorer: "https://goerli.voyager.online/",
     faucet: "https://faucet.goerli.starknet.io/",
+  },
+  starknet: {
+    name: "starknet",
+    color: "#17174C",
+    chainId: encodeShortString("SN_MAIN"),
+    rpcUrl: "",
+    blockExplorer: "https://voyager.online/",
+    faucet: "",
   },
   /*
   mainnet: {
