@@ -7,21 +7,23 @@ const fs = require("fs");
 const { shortStringToBigInt } = starknet;
 
 // https://docs.starknet.io/docs/Blocks/transactions/#chain-id
-// SN_LOCALHOST, SN_GOERLI, SN_MAIN
-const chainName = "SN_LOCALHOST";
-// const chainName = "SN_GOERLI"
+// (SN_LOCALHOST, SN_GOERLI, SN_MAIN)
+// const chainName = "SN_LOCALHOST";
+const chainName = "SN_GOERLI";
 // const chainName = "SN_MAIN"
 const chainId = shortStringToBigInt(chainName).toString();
+
+const deployerAddress = process.env.LOCAL_DEPLOYER_ADDRESS;
+const deployerPrivKey = process.env.LOCAL_DEPLOYER_PRIV_KEY;
+// const deployerAddress = process.env.GOERLI_DEPLOYER_ADDRESS;
+// const deployerPrivKey = process.env.GOERLI_DEPLOYER_PRIV_KEY;
+// const deployerAddress = process.env.STARKNET_DEPLOYER_ADDRESS;
+// const deployerPrivKey = process.env.STARKNET_DEPLOYER_PRIV_KEY;
 
 console.log({ chainName });
 console.log({ chainId });
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
-  /*
-  const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
-  */
-
   // see: https://www.npmjs.com/package/@shardlabs/starknet-hardhat-plugin#Account
   const accountName = "OpenZeppelin";
 
@@ -32,29 +34,33 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const namedAccounts = await getNamedAccounts();
   const { deployer } = namedAccounts;
 
+  console.log({ deployer });
+
   console.log({
-    LOCAL_DEPLOYER_ADDRESS: process.env.LOCAL_DEPLOYER_ADDRESS,
-    LOCAL_DEPLOYER_PRIV_KEY: process.env.LOCAL_DEPLOYER_PRIV_KEY,
-    accountName,
+    deployerAddress,
+    deployerPrivKey,
+    // accountName,
   });
 
   let deployerAccount;
   try {
-    console.log(`fetching account at ${process.env.LOCAL_DEPLOYER_ADDRESS}...`);
+    console.log(`fetching account at ${deployerAddress} ...`);
 
     deployerAccount = await starknet.getAccountFromAddress(
-      process.env.LOCAL_DEPLOYER_ADDRESS,
-      process.env.LOCAL_DEPLOYER_PRIV_KEY,
+      deployerAddress,
+      deployerPrivKey,
       accountName
     );
   } catch (e) {
     // if no account exists at address, deploy
-    console.error(e);
-    console.log(`no account found at ${process.env.LOCAL_DEPLOYER_ADDRESS}`);
-    console.log("now deploying account...");
+    // console.error(e);
+    console.log(`no account found at ${deployerAddress}`);
+    console.log("now deploying account ...");
     const accountWithPredefinedKey = await starknet.deployAccount(accountName, {
-      privateKey: process.env.LOCAL_DEPLOYER_PRIV_KEY,
+      privateKey: deployerPrivKey,
     });
+    console.log({ accountWithPredefinedKey });
+    console.log("success: account deployed");
 
     deployerAccount = accountWithPredefinedKey;
   }
@@ -92,6 +98,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     `https://goerli.voyager.online/contract/${contractERC721_deployed.address}`
   );
 
+  /*
   ///
   // publish ABI to frontend
   // TODO: move this into own file and call in "postdeploy":
@@ -139,6 +146,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   console.log("publish contract to frontend: DONE");
   ///
+*/
 };
 
 module.exports.tags = ["MyContracts"];
