@@ -1,7 +1,5 @@
 require("dotenv").config();
 const { utils } = require("ethers");
-const fs = require("fs");
-const chalk = require("chalk");
 
 require("@shardlabs/starknet-hardhat-plugin");
 
@@ -16,18 +14,17 @@ require("@nomiclabs/hardhat-etherscan");
 
 const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 
-/*
-  📡 This is where you configure your deploy configuration
+// this is where you configure your deploy configuration
+// check out `hardhat/deploy/00_deploy_your_contract.js` to customize your deployment
 
-  check out `packages/scripts/deploy.js` to customize your deployment
+// https://github.com/Shard-Labs/starknet-hardhat-plugin#starknet-deploy
+// https://github.com/Shard-Labs/starknet-devnet
 
-  out of the box it will auto deploy anything in the `contracts` folder and named *.cairo
-  plus it will use *.args for constructor args
-*/
-
-// select the network you want to deploy to here:
-const defaultNetwork = "devnet";
-// const defaultNetwork = "integrated-devnet"; // local chain -> https://github.com/Shard-Labs/starknet-devnet
+// select the network you want to deploy to here
+// const defaultNetwork = "integrated-devnet"; // local chain, spawns automatically through starknet-hardhat-plugin via docker
+const defaultNetwork = "devnet"; // local chain - https://github.com/Shard-Labs/starknet-devnet
+// const defaultNetwork = "alpha-goerli";
+// const defaultNetwork = "alpha-mainnet";
 
 module.exports = {
   starknet: {
@@ -51,11 +48,23 @@ module.exports = {
     },
   },
   networks: {
+    integratedDevnet: {
+      url: "http://127.0.0.1:5050",
+      // venv: "active" <- for the active virtual environment with installed starknet-devnet
+      // venv: "path/to/venv" <- for env with installed starknet-devnet (created with e.g. `python -m venv path/to/venv`)
+      // venv: "<VENV_PATH>",
+      // or specify Docker image tag
+      // dockerizedVersion: "<DEVNET_VERSION>",
+      // optional devnet CLI arguments
+      args: ["--lite-mode", "--gas-price", "2000000000"],
+      accounts: [process.env.LOCAL_DEPLOYER_PRIV_KEY],
+    },
     devnet: {
       url: "http://127.0.0.1:5050",
       args: ["--gas-price", "2000000000"],
       accounts: [process.env.LOCAL_DEPLOYER_PRIV_KEY],
     },
+    alphaGoerli: {}, // TODO:
     starknet: {
       url: "",
       // accounts: [process.env.STARKNET_DEPLOYER_PRIV_KEY],
@@ -66,15 +75,6 @@ module.exports = {
     compilers: [
       {
         version: "0.8.4",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
-      {
-        version: "0.6.7",
         settings: {
           optimizer: {
             enabled: true,
