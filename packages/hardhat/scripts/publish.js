@@ -1,8 +1,6 @@
 const fs = require("fs");
 const chalk = require("chalk");
 
-/*
-const graphDir = "../subgraph";
 const deploymentsDir = "./deployments";
 const publishDir = "../react-app/src/contracts";
 
@@ -12,52 +10,27 @@ function publishContract(contractName, networkName) {
       .readFileSync(`${deploymentsDir}/${networkName}/${contractName}.json`)
       .toString();
     contract = JSON.parse(contract);
-    const graphConfigPath = `${graphDir}/config/config.json`;
-    let graphConfig;
-    try {
-      if (fs.existsSync(graphConfigPath)) {
-        graphConfig = fs.readFileSync(graphConfigPath).toString();
-      } else {
-        graphConfig = "{}";
-      }
-    } catch (e) {
-      console.log(e);
-    }
-
-    graphConfig = JSON.parse(graphConfig);
-    graphConfig[`${networkName}_${contractName}Address`] = contract.address;
-
-    const folderPath = graphConfigPath.replace("/config.json", "");
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath);
-    }
-    fs.writeFileSync(graphConfigPath, JSON.stringify(graphConfig, null, 2));
-    if (!fs.existsSync(`${graphDir}/abis`)) fs.mkdirSync(`${graphDir}/abis`);
-    fs.writeFileSync(
-      `${graphDir}/abis/${networkName}_${contractName}.json`,
-      JSON.stringify(contract.abi, null, 2)
-    );
 
     // Hardhat Deploy writes a file with all ABIs in react-app/src/contracts/contracts.json
     // If you need the bytecodes and/or you want one file per ABIs, un-comment the following block.
     // Write the contracts ABI, address and bytecodes in case the front-end needs them
-    // fs.writeFileSync(
-    //   `${publishDir}/${contractName}.address.js`,
-    //   `module.exports = "${contract.address}";`
-    // );
-    // fs.writeFileSync(
-    //   `${publishDir}/${contractName}.abi.js`,
-    //   `module.exports = ${JSON.stringify(contract.abi, null, 2)};`
-    // );
-    // fs.writeFileSync(
-    //   `${publishDir}/${contractName}.bytecode.js`,
-    //   `module.exports = "${contract.bytecode}";`
-    // );
+    fs.writeFileSync(
+      `${publishDir}/${contractName}.address.js`,
+      `module.exports = "${contract.address}";`
+    );
+    fs.writeFileSync(
+      `${publishDir}/${contractName}.abi.js`,
+      `module.exports = ${JSON.stringify(contract.abi, null, 2)};`
+    );
+    fs.writeFileSync(
+      `${publishDir}/${contractName}.bytecode.js`,
+      `module.exports = "${contract.bytecode}";`
+    );
 
     return true;
   } catch (e) {
     console.log(
-      "Failed to publish " + chalk.red(contractName) + " to the subgraph."
+      "Failed to publish " + chalk.red(contractName) + " to frontend."
     );
     console.log(e);
     return false;
@@ -75,7 +48,7 @@ async function main() {
       }
     });
   });
-  console.log("✅  Published contracts to the subgraph package.");
+  console.log("✅  Published contracts to frontend.");
 }
 main()
   .then(() => process.exit(0))
@@ -83,4 +56,3 @@ main()
     console.error(error);
     process.exit(1);
   });
-*/
