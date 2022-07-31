@@ -17,23 +17,25 @@ $ sh ./start-local-chain.sh
 $ python3 -m venv ~/cairo_venv
 $ source ~/cairo_venv/bin/activate
 $ pip install -r requirements.txt
-# start local starknet chain
-$ starknet-devnet
 ```
 
+### 2. Start local starknet chain
+
 ```bash
+$ starknet-devnet
+
 # check if chain is running ok
 $ curl http://127.0.0.1:5050/is_alive
 ```
 
-### 2. Prepare js environment
+### 3. Prepare js environment
 
 ```bash
 # install dependencies
 $ yarn
 ```
 
-### 3. Fund Accounts
+### 4. Fund Accounts
 
 When running `yarn chain` a bunch of pre-funded accounts are logged in the terminal.
 
@@ -42,7 +44,7 @@ Pick one and go to `/packages/hardhat/example.env`.
 Duplicate `example.env` and rename to `.env`.
 Then insert one of the public+private key pair from the terminal at `INTEGRATED_DEVNET_DEPLOYER_ADDRESS=0x...` and `INTEGRATED_DEVNET_DEPLOYER_PRIV_KEY=...`.
 
-### 4. Deploy contracts and start frontend
+### 5. Deploy contracts and start frontend
 
 ```bash
 # compile contracts
