@@ -6,42 +6,39 @@ const fs = require("fs");
 
 const { shortStringToBigInt } = starknet;
 
+// select a chain to where the contracts shall be deployed
+
 // https://docs.starknet.io/docs/Blocks/transactions/#chain-id
 // (SN_LOCALHOST, SN_GOERLI, SN_MAIN)
-// const chainName = "SN_LOCALHOST";
-const chainName = "SN_GOERLI";
-// const chainName = "SN_MAIN"
+const chainName = "SN_LOCALHOST";
+// const chainName = "SN_GOERLI";
+// const chainName = "SN_MAIN";
 const chainId = shortStringToBigInt(chainName).toString();
 
-const deployerAddress = process.env.LOCAL_DEPLOYER_ADDRESS;
-const deployerPrivKey = process.env.LOCAL_DEPLOYER_PRIV_KEY;
+// const deployerAddress = process.env.INTEGRATED_DEVNET_DEPLOYER_ADDRESS;
+// const deployerPrivKey = process.env.INTEGRATED_DEVNET_DEPLOYER_PRIV_KEY;
+
+// const deployerAddress = process.env.LOCAL_DEVNET_DEPLOYER_ADDRESS;
+// const deployerPrivKey = process.env.LOCAL_DEVNET_DEPLOYER_PRIV_KEY;
+
 // const deployerAddress = process.env.GOERLI_DEPLOYER_ADDRESS;
 // const deployerPrivKey = process.env.GOERLI_DEPLOYER_PRIV_KEY;
+
 // const deployerAddress = process.env.STARKNET_DEPLOYER_ADDRESS;
 // const deployerPrivKey = process.env.STARKNET_DEPLOYER_PRIV_KEY;
 
+console.log("⛓");
 console.log({ chainName });
 console.log({ chainId });
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
   // see: https://www.npmjs.com/package/@shardlabs/starknet-hardhat-plugin#Account
-  const accountName = "OpenZeppelin";
+  const predeployedAccounts = await starknet.devnet.getPredeployedAccounts();
+  const deployerAccount = predeployedAccounts[0];
 
-  const account = null;
+  // OR
 
-  console.log("");
-
-  const namedAccounts = await getNamedAccounts();
-  const { deployer } = namedAccounts;
-
-  console.log({ deployer });
-
-  console.log({
-    deployerAddress,
-    deployerPrivKey,
-    // accountName,
-  });
-
+  /*
   let deployerAccount;
   try {
     console.log(`fetching account at ${deployerAddress} ...`);
@@ -50,40 +47,22 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
       deployerAddress,
       deployerPrivKey,
       accountName
-    );
+    );⛓
   } catch (e) {
-    // if no account exists at address, deploy
-    // console.error(e);
-    console.log(`no account found at ${deployerAddress}`);
-    console.log("now deploying account ...");
-    const accountWithPredefinedKey = await starknet.deployAccount(accountName, {
-      privateKey: deployerPrivKey,
-    });
-    console.log({ accountWithPredefinedKey });
-    console.log("success: account deployed");
-
-    deployerAccount = accountWithPredefinedKey;
+    console.error(e);
+    return;
   }
+  */
 
-  console.log({ deployerAccount, namedAccounts });
-
-  console.log(
-    "---------------------------------------------------------------------------------------"
-  );
-  console.log("account:");
+  console.log({ deployerAccount });
   console.log("");
-  console.log("contract address:", account.starknetContract.address);
-  console.log("public key:", account.publicKey);
-  console.log("private key:", account.privateKey);
-  console.log(
-    "---------------------------------------------------------------------------------------"
-  );
 
   const contractName = "ERC721";
 
-  console.log(`fetching contract ${contractName} ...`);
+  console.log(`🚆  fetching contract ${contractName}`);
   const contractERC721 = await starknet.getContractFactory(contractName);
 
+  console.log(`👷‍♀️ deploying contract ${contractName}`);
   const contractERC721_deployed = await contractERC721.deploy({
     name: shortStringToBigInt("StarknetNFT"),
     symbol: shortStringToBigInt("SNFT"),
@@ -91,12 +70,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     // owner: shortStringToBigInt(`${account.starknetContract.address}`),
     owner: shortStringToBigInt("TODO_OwnerAccount"),
   });
-
-  console.log("deployed to:", contractERC721_deployed.address);
-  console.log(
-    "block explorer:",
-    `https://goerli.voyager.online/contract/${contractERC721_deployed.address}`
-  );
+  console.log(`👷‍♀️ deploying contract ${contractName}: OK`);
+  console.log("🏠  deployed to:", contractERC721_deployed.address);
 
   /*
   ///
