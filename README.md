@@ -17,28 +17,32 @@ $ sh ./start-local-chain.sh
 $ python3 -m venv ~/cairo_venv
 $ source ~/cairo_venv/bin/activate
 $ pip install -r requirements.txt
-```
-
-### Start local starknet chain
-
-```bash
+# start local starknet chain
 $ starknet-devnet
 
 # check if chain is running
 $ curl http://127.0.0.1:5050/is_alive
 ```
 
-### Prepare js environment and start frontend
+## Prepare js environment
 
 ```bash
-# install js dependencies
+# install dependencies
 $ yarn
+```
 
-# 1. terminal
-# start local chain
-$ yarn chain
+### Fund Accounts
 
-# 2. terminal
+When running `yarn chain` a bunch of pre-funded accounts are logged in the terminal.
+
+Pick one and go to `/packages/hardhat/example.env`.
+
+Duplicate `example.env` and rename to `.env`.
+Then insert one of the public+private key pair from the terminal at `DEPLOYER_PRIV_KEY=0x...`.
+
+## Compile contracts and start frontend
+
+```bash
 # compile contracts
 $ yarn compile
 
@@ -48,15 +52,6 @@ $ yarn deploy
 # start app (in top level folder)
 $ yarn start
 ```
-
-## Accounts
-
-When running `yarn chain` a bunch of pre-funded accounts are logged in the terminal.
-
-Pick one and go to `/packages/hardhat/example.env`.
-
-Duplicate `example.env` and rename to `.env`.
-Then insert one of the private keys from the terminal at `DEPLOYER_PRIV_KEY=0x...`.
 
 ## Get some test eth
 
@@ -127,3 +122,7 @@ import deployedContracts from "./contracts/hardhat_starknet_contracts";
 * [example deployment](https://goerli.voyager.online/contract/0x0585feed17184d7990c57febcbb8e185f6607f49a2152c2965da5f01d373a405)
 * [starknet goerli faucet](https://faucet.goerli.starknet.io/)
 * [starknet-devnet](https://github.com/Shard-Labs/starknet-devnet)
+
+## Great Tutorials
+
+* [fullstack-starknet](https://github.com/sambarnes/fullstack-starknet)
