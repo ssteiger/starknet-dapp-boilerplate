@@ -32,7 +32,7 @@
     "chain": "echo \"manually run: sh ./start-local-chain.sh\"",
     "compile": "npx hardhat starknet-compile --show-stack-traces",
     "deploy": "mkdir -p ./deployments && hardhat deploy --export-all ../react-app/src/contracts/hardhat_contracts.json",
-    "postdeploy": "hardhat run scripts/publish.js",
+    "postdeploy": "node scripts/publish.js",
     "deployNewAccount": "hardhat run scripts/deployNewAccount.js",
     "starknet:deploy-wallet": "npx hardhat starknet-deploy-account --starknet-network alpha-goerli --wallet MyWallet",
     "starknet:compile": "npx hardhat starknet-compile --show-stack-traces",
