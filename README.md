@@ -5,7 +5,7 @@ Using Cairo, Hardhat and ReactJS.
 
 ## Getting started
 
-### Install requirements for local starknet chain
+### 1. Install requirements for local starknet chain
 
 ```bash
 # run
@@ -26,14 +26,14 @@ $ starknet-devnet
 $ curl http://127.0.0.1:5050/is_alive
 ```
 
-## Prepare js environment
+### 2. Prepare js environment
 
 ```bash
 # install dependencies
 $ yarn
 ```
 
-### Fund Accounts
+### 3. Fund Accounts
 
 When running `yarn chain` a bunch of pre-funded accounts are logged in the terminal.
 
@@ -42,7 +42,7 @@ Pick one and go to `/packages/hardhat/example.env`.
 Duplicate `example.env` and rename to `.env`.
 Then insert one of the public+private key pair from the terminal at `INTEGRATED_DEVNET_DEPLOYER_ADDRESS=0x...` and `INTEGRATED_DEVNET_DEPLOYER_PRIV_KEY=...`.
 
-## Deploy contracts and start frontend
+### 4. Deploy contracts and start frontend
 
 ```bash
 # compile contracts
