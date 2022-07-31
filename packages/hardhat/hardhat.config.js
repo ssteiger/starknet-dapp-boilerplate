@@ -21,8 +21,8 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 // https://github.com/Shard-Labs/starknet-devnet
 
 // select the network you want to deploy to here
-// const defaultNetwork = "integrated-devnet"; // local chain, spawns automatically through starknet-hardhat-plugin via docker
-const defaultNetwork = "devnet"; // local chain - https://github.com/Shard-Labs/starknet-devnet
+const defaultNetwork = "integrated-devnet"; // local chain, spawns automatically through starknet-hardhat-plugin via docker
+// const defaultNetwork = "devnet"; // local chain - https://github.com/Shard-Labs/starknet-devnet
 // const defaultNetwork = "alpha-goerli";
 // const defaultNetwork = "alpha-mainnet";
 
@@ -31,6 +31,7 @@ module.exports = {
     // https://github.com/Shard-Labs/starknet-hardhat-plugin#runtime-network---integrated-devnet
     // venv: "cairo_venv",
     network: defaultNetwork,
+    /*
     // https://github.com/Shard-Labs/starknet-hardhat-plugin#wallet
     wallets: {
       MyWallet: {
@@ -46,6 +47,7 @@ module.exports = {
         accountPath: "~/.starknet_accounts",
       },
     },
+    */
   },
   networks: {
     integratedDevnet: {
@@ -57,14 +59,17 @@ module.exports = {
       // dockerizedVersion: "<DEVNET_VERSION>",
       // optional devnet CLI arguments
       args: ["--lite-mode", "--gas-price", "2000000000"],
-      accounts: [process.env.LOCAL_DEPLOYER_PRIV_KEY],
+      accounts: [process.env.INTEGRATED_DEVNET_DEPLOYER_PRIV_KEY],
     },
     devnet: {
       url: "http://127.0.0.1:5050",
       args: ["--gas-price", "2000000000"],
-      accounts: [process.env.LOCAL_DEPLOYER_PRIV_KEY],
+      accounts: [process.env.LOCAL_DEVNET_DEPLOYER_PRIV_KEY],
     },
-    alphaGoerli: {}, // TODO:
+    alphaGoerli: {
+      url: "",
+      // accounts: [process.env.GOERLI_DEPLOYER_PRIV_KEY],
+    },
     starknet: {
       url: "",
       // accounts: [process.env.STARKNET_DEPLOYER_PRIV_KEY],
