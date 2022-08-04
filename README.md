@@ -1,6 +1,7 @@
 # Starknet dApp boilerplate
 
 A boilerplate to quickly get up and running with Starknet dApp development.
+
 Using Cairo, Hardhat and ReactJS.
 
 ## Getting started
@@ -140,3 +141,7 @@ $ sudo npx hardhat starknet-verify --starknet-network alpha-goerli --path ./cont
 ## Great Tutorials
 
 * [fullstack-starknet](https://github.com/sambarnes/fullstack-starknet)
+
+## License
+
+MIT
