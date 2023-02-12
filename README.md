@@ -43,7 +43,7 @@ When running `yarn chain` a bunch of pre-funded accounts are logged in the termi
 Pick one and go to `/packages/hardhat/example.env`.
 
 Duplicate `example.env` and rename to `.env`.
-Then insert one of the public+private key pair from the terminal at `INTEGRATED_DEVNET_DEPLOYER_ADDRESS=0x...` and `INTEGRATED_DEVNET_DEPLOYER_PRIV_KEY=...`.
+Then insert one of the public+private key pairs from the terminal at `INTEGRATED_DEVNET_DEPLOYER_ADDRESS=0x...` and `INTEGRATED_DEVNET_DEPLOYER_PRIV_KEY=...`.
 
 ### 5. Deploy contracts and start frontend
 
