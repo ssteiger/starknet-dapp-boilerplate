@@ -10,30 +10,30 @@ Using Cairo, Hardhat and ReactJS.
 
 ```bash
 # run
-$ sh ./start-local-chain.sh
+sh ./start-local-chain.sh
 
 # or
 
 # see: https://www.cairo-lang.org/docs/quickstart.html
-$ python3 -m venv ~/cairo_venv
-$ source ~/cairo_venv/bin/activate
-$ pip install -r requirements.txt
+python3 -m venv ~/cairo_venv
+source ~/cairo_venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ### 2. Start local starknet chain
 
 ```bash
-$ starknet-devnet
+starknet-devnet
 
 # check if chain is running ok
-$ curl http://127.0.0.1:5050/is_alive
+curl http://127.0.0.1:5050/is_alive
 ```
 
 ### 3. Prepare js environment
 
 ```bash
 # install dependencies
-$ yarn
+yarn
 ```
 
 ### 4. Fund Accounts
@@ -49,13 +49,13 @@ Then insert one of the public+private key pair from the terminal at `INTEGRATED_
 
 ```bash
 # compile contracts
-$ yarn compile
+yarn compile
 
 # deploy contracts
-$ yarn deploy
+yarn deploy
 
 # start app (in top level folder)
-$ yarn start
+yarn start
 ```
 
 ## Concepts / project structure
@@ -76,7 +76,7 @@ Configure account in `packages/hardhat/scripts/deployNewAccount.js`.
 Then run:
 
 ```bash
-$ yarn deployNewAccount
+yarn deployNewAccount
 ```
 
 ## Get some test eth
@@ -89,9 +89,9 @@ $ yarn deployNewAccount
 ## Verify contract
 
 ```bash
-$ cd starknet-mvp/packages/hardhat
+cd starknet-mvp/packages/hardhat
 
-$ sudo npx hardhat starknet-verify --starknet-network alpha-goerli --path ./contracts/ERC721.cairo --address 0x0585feed17184d7990c57febcbb8e185f6607f49a2152c2965da5f01d373a405 --show-stack-traces
+sudo npx hardhat starknet-verify --starknet-network alpha-goerli --path ./contracts/ERC721.cairo --address 0x0585feed17184d7990c57febcbb8e185f6607f49a2152c2965da5f01d373a405 --show-stack-traces
 ```
 
 ## Supported networks
