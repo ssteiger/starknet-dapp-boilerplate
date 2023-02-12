@@ -11,8 +11,8 @@ const { shortStringToBigInt } = starknet;
 // https://docs.starknet.io/docs/Blocks/transactions/#chain-id
 // (SN_LOCALHOST, SN_GOERLI, SN_MAIN)
 const chainName = "SN_LOCALHOST";
-// const chainName = "SN_GOERLI";
-// const chainName = "SN_MAIN";
+// const chainName = 'SN_GOERLI';
+// const chainName = 'SN_MAIN';
 const chainId = shortStringToBigInt(chainName).toString();
 
 // const deployerAddress = process.env.INTEGRATED_DEVNET_DEPLOYER_ADDRESS;
@@ -36,6 +36,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const predeployedAccounts = await starknet.devnet.getPredeployedAccounts();
   const deployerAccount = predeployedAccounts[0];
 
+  console.log({ deployerAccount });
+
   // OR
 
   /*
@@ -47,7 +49,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
       deployerAddress,
       deployerPrivKey,
       accountName
-    );⛓
+    );
   } catch (e) {
     console.error(e);
     return;
@@ -57,18 +59,22 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   console.log({ deployerAccount });
   console.log("");
 
-  const contractName = "ERC721";
+  const contractName = "ERC20_Mintable";
 
   console.log(`🚆  fetching contract ${contractName}`);
   const contractERC721 = await starknet.getContractFactory(contractName);
 
   console.log(`👷‍♀️ deploying contract ${contractName}`);
   const contractERC721_deployed = await contractERC721.deploy({
-    name: shortStringToBigInt("StarknetNFT"),
-    symbol: shortStringToBigInt("SNFT"),
+    name: shortStringToBigInt("MyERC20StarknetToken"),
+    symbol: shortStringToBigInt("MERC2ST"),
+    decimals: "0",
+    initial_supply: shortStringToBigInt("100"),
+    recipient: deployerAccount.address,
+
     // TODO: this is not working, to long?
-    // owner: shortStringToBigInt(`${account.starknetContract.address}`),
-    owner: shortStringToBigInt("TODO_OwnerAccount"),
+    owner: deployerAccount.address,
+    // owner: shortStringToBigInt("TODO_OwnerAccount"),
   });
   console.log(`👷‍♀️ deploying contract ${contractName}: OK`);
   console.log("🏠  deployed to:", contractERC721_deployed.address);
@@ -76,8 +82,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   /*
   ///
   // publish ABI to frontend
-  // TODO: move this into own file and call in "postdeploy":
-  console.log("publish contract to frontend");
+  // TODO: move this into own file and call in 'postdeploy':
+  console.log('publish contract to frontend');
 
   const { address } = contractERC721_deployed;
 
@@ -104,22 +110,22 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     },
   };
 
-  const publishDir = "../react-app/src/contracts";
+  const publishDir = '../react-app/src/contracts';
 
   fs.writeFileSync(
     `${publishDir}/hardhat_starknet_contracts.json`,
     `${JSON.stringify(content, null, 2)}`,
     (err) => {
       if (err) {
-        console.error("Error writing contracts to frontend:");
+        console.error('Error writing contracts to frontend:');
         console.error(err);
       }
       // file written successfully
-      console.log("contract published to frontend");
+      console.log('contract published to frontend');
     }
   );
 
-  console.log("publish contract to frontend: DONE");
+  console.log('publish contract to frontend: DONE');
   ///
 */
 };

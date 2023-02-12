@@ -4,7 +4,7 @@ const chalk = require("chalk");
 const deploymentsDir = "./deployments";
 const publishDir = "../react-app/src/contracts";
 
-function publishContract(contractName, networkName) {
+const publishContract = (contractName, networkName) => {
   try {
     let contract = fs
       .readFileSync(`${deploymentsDir}/${networkName}/${contractName}.json`)
@@ -35,12 +35,18 @@ function publishContract(contractName, networkName) {
     console.log(e);
     return false;
   }
-}
+};
 
-async function main() {
+const main = async () => {
   const directories = fs.readdirSync(deploymentsDir);
+
+  console.log({ directories });
+
   directories.forEach(function (directory) {
     const files = fs.readdirSync(`${deploymentsDir}/${directory}`);
+
+    console.log({ files });
+
     files.forEach(function (file) {
       if (file.indexOf(".json") >= 0) {
         const contractName = file.replace(".json", "");
@@ -48,8 +54,10 @@ async function main() {
       }
     });
   });
-  console.log("✅  Published contracts to frontend.");
-}
+
+  console.log("✅  published contracts to frontend");
+};
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {
